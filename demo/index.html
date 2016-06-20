@@ -18,31 +18,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </head>
   <body unresolved>
 
-    <p>An example of <code>&lt;boxes-distributor&gt;</code>:</p>
+    <p>An example of a 300x192cm with 54x42 boxes <code>&lt;boxes-distributor&gt;</code>:</p>
 
-    <p>Make words! <button id="saybtn">Say Something</button></p>
-    <p>Make lasers! <button id="laserbtn">Fire lasers</button></p>
-
-    <boxes-distributor author='{"name": "Lord Meowser", "image": "http://lorempixel.com/g/300/200/cats/"}' fancy>
-      <h2>Hello boxes-distributor</h2>
+    <boxes-distributor
+                       truck-width='300'
+                       truck-height='192'
+                       box-width='54'
+                       box-height='42'
+                       >
     </boxes-distributor>
-
-    <script>
-      var seedElement = document.querySelector('boxes-distributor');
-
-      document.querySelector('#saybtn').addEventListener('click', function() {
-        alert(seedElement.sayHello('Hallo!'));
-      });
-
-      document.querySelector('#laserbtn').addEventListener('click', function() {
-        seedElement.fireLasers();
-      });
-
-      document.addEventListener("boxes-distributor-lasers", function(e) {
-        console.log(e.detail.sound);
-      });
-
-    </script>
 
   </body>
 </html>

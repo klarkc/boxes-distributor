@@ -1,0 +1,99 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+This element distributes boxes with a ideal layout to use the maximum of available space in outer boxes
+
+Example:
+
+    <boxes-box
+                       box-width='54'
+                       box-height='42'
+                       >
+    </boxes-box>
+
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="boxes-box">
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+      }
+    </style>
+    <boxes-box box-width='[[boxWidth]]' box-height='[[boxHeight]]' tree="{{tree.left}}"></boxes-box>
+    <boxes-box box-width='[[boxWidth]]' box-height='[[boxHeight]]' tree="{{tree.right}}"></boxes-box>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'boxes-box',
+
+      properties: {
+         /**
+         * `boxWidth` height of the truck in centimeters
+         */
+        boxWidth: Number,
+
+         /**
+         * `boxHeight` height of the truck in centimeters
+         */
+        boxHeight: Number,
+
+        /**
+         * `tree` the calculated tree, representing the tree of boxes
+         */
+        tree: {
+          type: Array,
+          readOnly: true,
+          notify: true,
+          value: function(){
+            return {
+              left: null,
+              right: null,
+              level: 0
+            }
+          }
+        }
+      },
+
+      // Element Lifecycle
+      ready: function(){
+        return;
+      },
+
+      // Element Behavior
+      observers: [
+        '_updatedTree(boxWidth, boxHeight, tree.left, tree.right, tree.level)'
+      ],
+
+      _updatedTree: function(boxWidth, boxHeight, leftTree, rightTree, level) {
+        // If we are root
+        if(level === 0) {
+          // Insert left
+          if(!this.tree.left) {
+            this.set('tree.left', leftTree);
+          } else if(!this.tree.right) {
+            // Or insert right
+            this.set('tree.right', rightTree);
+          }
+        } else {
+          // If we are a leaf
+
+        }
+      }
+    });
+  </script>
+</dom-module>

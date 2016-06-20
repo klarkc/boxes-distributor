@@ -9,18 +9,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="boxes-box.html">
 
 <!--
-An element providing a solution to no problem in particular.
+This element distributes boxes with a ideal layout to use the maximum of available space in trucks
 
 Example:
 
-    <boxes-distributor></boxes-distributor>
-
-Example:
-
-    <boxes-distributor>
-      <h2>Hello boxes-distributor</h2>
+    <boxes-distributor
+                       truck-width='300'
+                       truck-height='192'
+                       box-width='54'
+                       box-height='42'
+                       >
     </boxes-distributor>
 
 @demo demo/index.html
@@ -34,23 +35,9 @@ Example:
         display: block;
         box-sizing: border-box;
       }
-
-      .author img {
-        display: block;
-        float: left;
-        margin-right: 5px;
-        max-height: 100px;
-        max-width: 100px;
-      }
     </style>
-
-    <h1>&lt;boxes-distributor&gt;</h1>
-    <content></content>
-    <p class="author">
-      <img src$="{{author.image}}">
-      Cheers,<br/>
-      <span class="name">{{author.name}}</span>
-    </p>
+    <p>Total of boxes: <span>[[boxes]]</span></p>
+    <boxes-box box-width="[[truckWidth]]" box-height="[[truckHeight]]"></boxes-box>
   </template>
 
   <script>
@@ -59,36 +46,38 @@ Example:
 
       properties: {
         /**
-         * `fancy` indicates that the element should don a monocle and tophat,
-         * while checking its pocket watch.
+         * `truckWidth` width of the truck in centimeters
          */
-        fancy: Boolean,
+        truckWidth: Number,
 
         /**
-         * Describes the author of the element, but is really just an excuse to
-         * show off JSDoc annotations.
-         *
-         * @type {{name: string, image: string}}
+         * `truckHeight` height of the truck in centimeters
          */
-        author: {
-          type: Object,
-          // Use `value` to provide a default value for a property, by setting it
-          // on your element's prototype.
-          //
-          // If you provide a function, as we do here, Polymer will call that
-          // _per element instance_.
-          //
-          // We do that to ensure that each element gets its own copy of the
-          // value, rather than having it shared across all instances (via the
-          // prototype).
-          value: function() {
-            return {
-              name:  'Dimitri Glazkov',
-              image: 'http://addyosmani.com/blog/wp-content/uploads/2013/04/unicorn.jpg',
-            };
-          }
-        },
+        truckHeight: Number,
+
+         /**
+         * `boxWidth` height of the truck in centimeters
+         */
+        boxWidth: Number,
+
+         /**
+         * `boxHeight` height of the truck in centimeters
+         */
+        boxHeight: Number,
+
+        /**
+         * `boxes` the calculated number of boxes
+         */
+        boxes: {
+          type: Number,
+          readOnly: true,
+          notify: true
+        }
       },
+
+      observers: [
+        '_calculateBoxes(truckWidth, truckHeight, boxWidth, boxHeight)'
+      ],
 
       // Element Lifecycle
 
@@ -118,6 +107,19 @@ Example:
       },
 
       // Element Behavior
+
+      /**
+       * Calculate number of boxes and optimal arrangement of the boxes
+       * @param {number} tW Width of the truck
+       * @param {number} tH Height of the truck
+       * @param {number} bW Width of the boxes
+       * @param {number} bH Height of the boxes
+       */
+      _calculateBoxes: function(tW, tH, bW, bH) {
+        var tArea = tW * tH;
+        var bArea = bW * bH;
+        this._setBoxes(Math.floor(tArea / bArea));
+      },
 
       /**
        * Sometimes it's just nice to say hi.
