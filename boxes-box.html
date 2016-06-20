@@ -33,8 +33,15 @@ Example:
         box-sizing: border-box;
       }
     </style>
-    <boxes-box box-width='[[boxWidth]]' box-height='[[boxHeight]]' tree="{{tree.left}}"></boxes-box>
-    <boxes-box box-width='[[boxWidth]]' box-height='[[boxHeight]]' tree="{{tree.right}}"></boxes-box>
+    <template is="dom-repeat" items="[[tree]]">
+      <boxes-box
+                 tree="[[item]]"
+                 box-width="[[boxWidth]]"
+                 box-height="[[boxHeight]]"
+                 level="[[_calculateLevel()]]"
+                 >
+      </boxes-box>
+    </template>
   </template>
 
   <script>
@@ -57,43 +64,38 @@ Example:
          */
         tree: {
           type: Array,
-          readOnly: true,
-          notify: true,
-          value: function(){
-            return {
-              left: null,
-              right: null,
-              level: 0
-            }
-          }
+          value: [],
+          observer: '_updatedTree'
+        },
+
+        /**
+         * `level` the current level in the tree
+         */
+        level: {
+          type: Number,
+          value: 0
         }
       },
 
       // Element Lifecycle
-      ready: function(){
-        return;
-      },
 
       // Element Behavior
-      observers: [
-        '_updatedTree(boxWidth, boxHeight, tree.left, tree.right, tree.level)'
-      ],
-
-      _updatedTree: function(boxWidth, boxHeight, leftTree, rightTree, level) {
-        // If we are root
-        if(level === 0) {
-          // Insert left
-          if(!this.tree.left) {
-            this.set('tree.left', leftTree);
-          } else if(!this.tree.right) {
-            // Or insert right
-            this.set('tree.right', rightTree);
-          }
+      _updatedTree: function(tree) {
+        // If we are root and tree is missing values
+        if(!this.level && this.tree.length < 2) {
+          // Insert new values
+          this.tree.push(tree);
+          console.log(this.tree);
         } else {
           // If we are a leaf
-
+          console.log('weird loop!', this.tree, this.level, this.innerHTML);
         }
+      },
+
+      _calculateLevel: function(){
+        return this.level + 1;
       }
+
     });
   </script>
 </dom-module>
