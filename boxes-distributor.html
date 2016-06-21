@@ -32,29 +32,30 @@ Example:
 
 <dom-module id="boxes-distributor">
   <template>
-    <style include="iron-flex">
+    <style>
       :host {
         display: block;
         box-sizing: border-box;
-        @apply(--layout-horizontal);
-        @apply(--layout-center-justified);
       }
 
       #container {
         border: 1px solid black;
         position: relative;
+        margin-left: auto;
+        margin-right: auto;
       }
 
       #efficiency {
         color: red;
       }
     </style>
+    <p><span id="total">Number of boxes: 0</span></p>
+    <p><span id="efficiency">Layout efficiency: 0%</span></p>
     <div id="container">
       <template is="dom-repeat" items="{{boxes}}">
-        <boxes-box box="{{item}}"></boxes-box>
+        <boxes-box box="{{item}}" scale="{{scale}}"></boxes-box>
       </template>
     </div>
-    <p><span id="efficiency">Layout Efficiency: 0%</span></p>
   </template>
 
   <script>
@@ -63,22 +64,22 @@ Example:
 
       properties: {
         /**
-         * `truckWidth` width of the truck in centimeters
+         * `truckWidth` width of the truck in pixels
          */
         truckWidth: Number,
 
         /**
-         * `truckHeight` height of the truck in centimeters
+         * `truckHeight` height of the truck in pixels
          */
         truckHeight: Number,
 
          /**
-         * `boxWidth` height of the truck in centimeters
+         * `boxWidth` height of the truck in pixels
          */
         boxWidth: Number,
 
          /**
-         * `boxHeight` height of the truck in centimeters
+         * `boxHeight` height of the truck in pixels
          */
         boxHeight: Number,
 
@@ -89,6 +90,14 @@ Example:
           type: Array,
           readOnly: true,
           notify: true
+        },
+
+        /**
+         * `scale` the scale multiplier of all the sizes
+         */
+        scale: {
+          type: Number,
+          value: 1
         }
       },
 
@@ -139,13 +148,14 @@ Example:
         }).length;
 
         if(!fit) {
-          this.$.efficiency.innerHTML = 'Layout Efficiency: 0%';
+          this.$.efficiency.innerHTML = 'Layout efficiency: 0%';
           this.$.efficiency.style.color = 'red';
           return 0;
         }
 
         let eff = 100 * fit / total;
-        this.$.efficiency.innerHTML = 'Layout Efficiency: ' + eff + '%';
+        this.$.efficiency.innerHTML = 'Layout efficiency: ' + eff + '%';
+        this.$.total.innerHTML = 'Number of boxes: ' + fit;
         if(eff >= 50) this.$.efficiency.style.color = 'orange';
         if(eff >= 80) this.$.efficiency.style.color = 'green';
         console.log('efficiency', eff);
@@ -153,8 +163,8 @@ Example:
       },
 
       _setTruck: function(tW, tH) {
-        this.$.container.style.width = tW + 'px';
-        this.$.container.style.height = tH + 'px';
+        this.$.container.style.width = tW * this.scale + 'px';
+        this.$.container.style.height = tH * this.scale + 'px';
       },
 
       _handlePacked: function(e) {

@@ -35,6 +35,17 @@ Example:
         overflow: hidden;
         border: 1px solid white;
         text-align: center;
+        cursor: pointer;
+      }
+
+      /* Disable text selection */
+      :host {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none;   /* Chrome/Safari/Opera */
+        -khtml-user-select: none;    /* Konqueror */
+        -moz-user-select: none;      /* Firefox */
+        -ms-user-select: none;       /* Internet Explorer/Edge */
+        user-select: none;
       }
     </style>
     <span>{{box._id}}</span>
@@ -51,19 +62,27 @@ Example:
         box: {
           type: Object,
           observer: '_updatedBox'
+        },
+
+        /**
+         * `scale` the scale multiplier of all the sizes
+         */
+        scale: {
+          type: Number,
+          value: 1
         }
       },
 
       _updatedBox: function(box) {
         //console.log('updated box', box);
-        this.style.width = box.w + 'px';
-        this.style.height = box.h + 'px';
-        this.style.lineHeight = box.h + 'px';
+        this.style.width = box.w * this.scale + 'px';
+        this.style.height = box.h * this.scale + 'px';
+        this.style.lineHeight = box.h * this.scale + 'px';
         this.style.backgroundColor = this._getRandomColor();
         if(box.fit) {
           this.style.display = 'block';
-          this.style.left = box.fit.x + 'px';
-          this.style.top = box.fit.y + 'px';
+          this.style.left = box.fit.x * this.scale + 'px';
+          this.style.top = box.fit.y * this.scale + 'px';
         } else {
           this.style.display = 'none';
         }
