@@ -12,6 +12,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../paper-styles/default-theme.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-slider/paper-slider.html">
 <link rel="import" href="boxes-box.html">
 <link rel="import" href="packer-behavior.html">
 
@@ -34,7 +36,7 @@ Example:
 
 <dom-module id="boxes-distributor">
   <template>
-    <style>
+    <style include="iron-flex iron-flex-alignment">
       :host {
         display: block;
         box-sizing: border-box;
@@ -43,20 +45,55 @@ Example:
       #container {
         background-color: var(--dark-theme-background-color);
         position: relative;
+        margin-top: 226px;
         margin-left: auto;
         margin-right: auto;
+        margin-bottom: 88px;
+      }
+
+      #container .info {
+        line-height: 50px;
+        position: absolute;
+        bottom: -86px;
+        width: 100%;
+      }
+
+      #container .info.top {
+        bottom: inherit;
+        top: -208px;
       }
 
       #efficiency {
         color: red;
       }
+
+      #slider {
+        width: 100%;
+      }
     </style>
-    <p><span id="total">Number of boxes: 0</span></p>
-    <p><span id="efficiency">Layout efficiency: 0%</span></p>
+
+
     <paper-material id="container">
+      <paper-material class="info top layout vertical">
+        <div class="layout horizontal around-justified">
+            <paper-input type="number" label="Truck width" value="{{truckWidth}}"></paper-input>
+            <paper-input type="number" label="Truck height" value="{{truckHeight}}"></paper-input>
+        </div>
+        <div class="layout horizontal around-justified">
+          <paper-input type="number" label="Box width" value="{{boxWidth}}"></paper-input>
+          <paper-input type="number" label="Box height" value="[[boxHeight]]"></paper-input>
+        </div>
+        <paper-slider id="slider" label = "Scale" min="1" max="3" step="0.1" value="{{scale}}"></paper-slider>
+      </paper-material>
+
       <template is="dom-repeat" items="{{boxes}}">
         <boxes-box box="{{item}}" scale="{{scale}}"></boxes-box>
       </template>
+
+      <paper-material class="info layout horizontal around-justified">
+        <p><span id="total">Number of boxes: 0</span></p>
+        <p><span id="efficiency">Layout efficiency: 0%</span></p>
+      </paper-material>
     </paper-material>
   </template>
 
@@ -68,22 +105,34 @@ Example:
         /**
          * `truckWidth` width of the truck in pixels
          */
-        truckWidth: Number,
+        truckWidth: {
+          type: Number,
+          notify: true
+        },
 
         /**
          * `truckHeight` height of the truck in pixels
          */
-        truckHeight: Number,
+        truckHeight: {
+          type: Number,
+          notify: true
+        },
 
          /**
          * `boxWidth` height of the truck in pixels
          */
-        boxWidth: Number,
+        boxWidth: {
+          type: Number,
+          notify: true
+        },
 
          /**
          * `boxHeight` height of the truck in pixels
          */
-        boxHeight: Number,
+        boxHeight: {
+          type: Number,
+          notify: true,
+        },
 
         /**
          * `boxes` the calculated boxes
@@ -99,14 +148,15 @@ Example:
          */
         scale: {
           type: Number,
-          value: 1
+          value: 1,
+          notify: true
         }
       },
 
       observers: [
-        '_setTruck(truckWidth, truckHeight)',
-        '_calculateBoxes(truckWidth, truckHeight, boxWidth, boxHeight)',
-        '_generateTree(truckWidth, truckHeight, boxes)'
+        '_setTruck(truckWidth, truckHeight, scale)',
+        '_calculateBoxes(truckWidth, truckHeight, boxWidth, boxHeight, scale)',
+        '_generateTree(truckWidth, truckHeight, boxes, scale)'
       ],
 
       listeners: {
@@ -127,6 +177,7 @@ Example:
        * @param {number} bH Height of the boxes
        */
       _calculateBoxes: function(tW, tH, bW, bH) {
+        console.log(tW,tH,bW,bH);
         let tArea = tW * tH;
         let bArea = bW * bH;
         let boxes = new Array(Math.floor(tArea / bArea));

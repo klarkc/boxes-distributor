@@ -14,20 +14,45 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
     <title>boxes-distributor Demo</title>
     <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="../../iron-flex-layout/iron-flex-layout-classes.html">
     <link rel="import" href="../boxes-distributor.html">
   </head>
   <body unresolved>
+    <dom-module id="app-demo">
+      <template>
+        <style include="iron-flex iron-flex-alignment">
+          :host {
+            text-align: center;
+          }
 
-    <p>An example of a 300x192px with 54x42px boxes <code>&lt;boxes-distributor&gt;</code> with scale 2:1 :</p>
+          boxes-distributor {
+            margin-top: 102px;
+          }
+        </style>
+        <h3>An example of a {{truckWidth}}x{{truckHeight}}px with {{boxWidth}}x{{boxHeight}}px boxes <code>&lt;boxes-distributor&gt</code> with scale {{scale}}:1 :</h3>
+        <boxes-distributor
+                           truck-width='{{truckWidth}}'
+                           truck-height='{{truckHeight}}'
+                           box-width='{{boxWidth}}'
+                           box-height='{{boxHeight}}'
+                           scale='{{scale}}'
+                           >
+        </boxes-distributor>
+      </template>
+      <script>
+        Polymer({
+          is: 'app-demo',
+          ready: function(){
+            this.truckWidth = 300;
+            this.truckHeight = 192;
+            this.boxWidth = 54;
+            this.boxHeight = 42;
+            this.scale = 2;
+          }
+        });
+      </script>
+    </dom-module>
 
-    <boxes-distributor
-                       truck-width='300'
-                       truck-height='192'
-                       box-width='54'
-                       box-height='42'
-                       scale='2'
-                       >
-    </boxes-distributor>
-
+    <app-demo></app-demo>
   </body>
 </html>
