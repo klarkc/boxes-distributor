@@ -9,6 +9,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-styles/default-theme.html">
 
 <!--
 This element distributes boxes with a ideal layout to use the maximum of available space in outer boxes
@@ -33,7 +34,8 @@ Example:
         box-sizing: border-box;
         position: absolute;
         overflow: hidden;
-        border: 1px solid white;
+        border: 1px solid;
+        border-color: var(--dark-theme-divider-color);
         text-align: center;
         cursor: pointer;
       }

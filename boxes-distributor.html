@@ -9,7 +9,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-styles/default-theme.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../paper-material/paper-material.html">
 <link rel="import" href="boxes-box.html">
 <link rel="import" href="packer-behavior.html">
 
@@ -39,7 +41,7 @@ Example:
       }
 
       #container {
-        border: 1px solid black;
+        background-color: var(--dark-theme-background-color);
         position: relative;
         margin-left: auto;
         margin-right: auto;
@@ -51,11 +53,11 @@ Example:
     </style>
     <p><span id="total">Number of boxes: 0</span></p>
     <p><span id="efficiency">Layout efficiency: 0%</span></p>
-    <div id="container">
+    <paper-material id="container">
       <template is="dom-repeat" items="{{boxes}}">
         <boxes-box box="{{item}}" scale="{{scale}}"></boxes-box>
       </template>
-    </div>
+    </paper-material>
   </template>
 
   <script>
