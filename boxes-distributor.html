@@ -116,8 +116,8 @@ Example:
        * @param {number} bH Height of the boxes
        */
       _calculateBoxes: function(tW, tH, bW, bH) {
-        var tArea = tW * tH;
-        var bArea = bW * bH;
+        let tArea = tW * tH;
+        let bArea = bW * bH;
         this._setBoxes(Math.floor(tArea / bArea));
       },
 
@@ -128,7 +128,7 @@ Example:
        * @return {string} The full greeting.
        */
       sayHello: function(greeting) {
-        var response = greeting || 'Hello World!';
+        let response = greeting || 'Hello World!';
         return 'boxes-distributor says, ' + response;
       },
 
