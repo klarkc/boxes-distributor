@@ -29,19 +29,15 @@ Example:
   <template>
     <style>
       :host {
-        display: block;
+        display: none;
         box-sizing: border-box;
+        position: absolute;
+        overflow: hidden;
+        border: 1px solid white;
+        text-align: center;
       }
     </style>
-    <template is="dom-repeat" items="[[tree]]">
-      <boxes-box
-                 tree="[[item]]"
-                 box-width="[[boxWidth]]"
-                 box-height="[[boxHeight]]"
-                 level="[[_calculateLevel()]]"
-                 >
-      </boxes-box>
-    </template>
+    <span>{{box._id}}</span>
   </template>
 
   <script>
@@ -50,52 +46,37 @@ Example:
 
       properties: {
          /**
-         * `boxWidth` height of the truck in centimeters
+         * `box` the box object
          */
-        boxWidth: Number,
-
-         /**
-         * `boxHeight` height of the truck in centimeters
-         */
-        boxHeight: Number,
-
-        /**
-         * `tree` the calculated tree, representing the tree of boxes
-         */
-        tree: {
-          type: Array,
-          value: [],
-          observer: '_updatedTree'
-        },
-
-        /**
-         * `level` the current level in the tree
-         */
-        level: {
-          type: Number,
-          value: 0
+        box: {
+          type: Object,
+          observer: '_updatedBox'
         }
       },
 
-      // Element Lifecycle
-
-      // Element Behavior
-      _updatedTree: function(tree) {
-        // If we are root and tree is missing values
-        if(!this.level && this.tree.length < 2) {
-          // Insert new values
-          this.tree.push(tree);
-          console.log(this.tree);
+      _updatedBox: function(box) {
+        //console.log('updated box', box);
+        this.style.width = box.w + 'px';
+        this.style.height = box.h + 'px';
+        this.style.lineHeight = box.h + 'px';
+        this.style.backgroundColor = this._getRandomColor();
+        if(box.fit) {
+          this.style.display = 'block';
+          this.style.left = box.fit.x + 'px';
+          this.style.top = box.fit.y + 'px';
         } else {
-          // If we are a leaf
-          console.log('weird loop!', this.tree, this.level, this.innerHTML);
+          this.style.display = 'none';
         }
       },
 
-      _calculateLevel: function(){
-        return this.level + 1;
+      _getRandomColor: function() {
+        let letters = '0123456789ABCDEF'.split('');
+        let color = '#';
+        for (var i = 0; i < 6; i++ ) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
       }
-
     });
   </script>
 </dom-module>

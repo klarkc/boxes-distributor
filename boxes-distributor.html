@@ -9,7 +9,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="boxes-box.html">
+<link rel="import" href="packer-behavior.html">
 
 <!--
 This element distributes boxes with a ideal layout to use the maximum of available space in trucks
@@ -30,14 +32,29 @@ Example:
 
 <dom-module id="boxes-distributor">
   <template>
-    <style>
+    <style include="iron-flex">
       :host {
         display: block;
         box-sizing: border-box;
+        @apply(--layout-horizontal);
+        @apply(--layout-center-justified);
+      }
+
+      #container {
+        border: 1px solid black;
+        position: relative;
+      }
+
+      #efficiency {
+        color: red;
       }
     </style>
-    <p>Total of boxes: <span>[[boxes]]</span></p>
-    <boxes-box box-width="[[truckWidth]]" box-height="[[truckHeight]]"></boxes-box>
+    <div id="container">
+      <template is="dom-repeat" items="{{boxes}}">
+        <boxes-box box="{{item}}"></boxes-box>
+      </template>
+    </div>
+    <p><span id="efficiency">Layout Efficiency: 0%</span></p>
   </template>
 
   <script>
@@ -66,50 +83,33 @@ Example:
         boxHeight: Number,
 
         /**
-         * `boxes` the calculated number of boxes
+         * `boxes` the calculated boxes
          */
         boxes: {
-          type: Number,
+          type: Array,
           readOnly: true,
           notify: true
         }
       },
 
       observers: [
-        '_calculateBoxes(truckWidth, truckHeight, boxWidth, boxHeight)'
+        '_setTruck(truckWidth, truckHeight)',
+        '_calculateBoxes(truckWidth, truckHeight, boxWidth, boxHeight)',
+        '_generateTree(truckWidth, truckHeight, boxes)'
       ],
 
+      listeners: {
+        'packed': '_handlePacked'
+      },
+
+      behaviors: [PackerBehavior],
+
       // Element Lifecycle
-
-      ready: function() {
-        // `ready` is called after all elements have been configured, but
-        // propagates bottom-up. This element's children are ready, but parents
-        // are not.
-        //
-        // This is the point where you should make modifications to the DOM (when
-        // necessary), or kick off any processes the element wants to perform.
-      },
-
-      attached: function() {
-        // `attached` fires once the element and its parents have been inserted
-        // into a document.
-        //
-        // This is a good place to perform any work related to your element's
-        // visual state or active behavior (measuring sizes, beginning animations,
-        // loading resources, etc).
-      },
-
-      detached: function() {
-        // The analog to `attached`, `detached` fires when the element has been
-        // removed from a document.
-        //
-        // Use this to clean up anything you did in `attached`.
-      },
 
       // Element Behavior
 
       /**
-       * Calculate number of boxes and optimal arrangement of the boxes
+       * Calculate the array of boxes
        * @param {number} tW Width of the truck
        * @param {number} tH Height of the truck
        * @param {number} bW Width of the boxes
@@ -118,35 +118,121 @@ Example:
       _calculateBoxes: function(tW, tH, bW, bH) {
         let tArea = tW * tH;
         let bArea = bW * bH;
-        this._setBoxes(Math.floor(tArea / bArea));
+        let boxes = new Array(Math.floor(tArea / bArea));
+        let bId = 0;
+        boxes = boxes.fill(null).map(function(){return {w: bW, h: bH, _id: ++bId}});
+
+        // Define the tries
+        this.tries = [];
+
+        // Finished status
+        this.finished = false;
+
+        this._setBoxes(boxes);
       },
 
-      /**
-       * Sometimes it's just nice to say hi.
-       *
-       * @param {string} greeting A positive greeting.
-       * @return {string} The full greeting.
-       */
-      sayHello: function(greeting) {
-        let response = greeting || 'Hello World!';
-        return 'boxes-distributor says, ' + response;
+      _calculateEfficiency: function(boxes) {
+        let total = boxes.length;
+
+        let fit =  boxes.filter(function(box){
+          return box.fit;
+        }).length;
+
+        if(!fit) {
+          this.$.efficiency.innerHTML = 'Layout Efficiency: 0%';
+          this.$.efficiency.style.color = 'red';
+          return 0;
+        }
+
+        let eff = 100 * fit / total;
+        this.$.efficiency.innerHTML = 'Layout Efficiency: ' + eff + '%';
+        if(eff >= 50) this.$.efficiency.style.color = 'orange';
+        if(eff >= 80) this.$.efficiency.style.color = 'green';
+        console.log('efficiency', eff);
+        return eff;
       },
 
-      /**
-       * The `boxes-distributor-lasers` event is fired whenever `fireLasers` is called.
-       *
-       * @event boxes-distributor-lasers
-       * @detail {{sound: String}}
-       */
+      _setTruck: function(tW, tH) {
+        this.$.container.style.width = tW + 'px';
+        this.$.container.style.height = tH + 'px';
+      },
 
-      /**
-       * Attempt to destroy this element's enemies with a beam of light!
-       *
-       * Or, at least, dispatch an event in the vain hope that someone else will
-       * do the zapping.
-       */
-      fireLasers: function() {
-        this.fire('boxes-distributor-lasers', {sound: 'Pew pew!'});
+      _handlePacked: function(e) {
+        if(this.finished) {
+          console.log('already finished, skipping handlePacked');
+          return;
+        }
+
+
+        if(this.tries.length > 20) {
+          this._setBestTry();
+          console.log('max tries reached, finishing');
+          return;
+        }
+
+        let eff = this._calculateEfficiency(e.detail);
+        if( eff >= 99.9) {
+          console.log('max eficiency reached, finishing');
+          return;
+        } else if (this.tries.length > 0){
+          this.tries[this.tries.length - 1].efficiency = eff;
+        }
+
+        let missingBoxes = e.detail.filter(function(box){
+          return !box.fit;
+        });
+
+        let rotatedBoxes = missingBoxes.map(this._rotateBox);
+
+        let boxes = this._unFit(e.detail).map(function(box){
+          let rbox = rotatedBoxes.filter(function(rBox){
+            return rBox._id === box._id;
+          });
+          return rbox[0] || box;
+        }).sort(this._sort.maxside);
+
+        let lastTry = this.tries[this.tries.length - 1];
+        let rotatedIds = rotatedBoxes.map(function(b){return b._id});
+        if( lastTry && this._arrayEqual(lastTry.rotatedIds, rotatedIds)) {
+          console.log('last try was the same, stoping the efficiency search');
+          this._setBestTry();
+          return;
+        }
+
+        this.tries.push({boxes: boxes, rotatedIds: rotatedIds});
+
+        console.log('retrying with rotated', rotatedIds);
+        this._setBoxes(boxes);
+      },
+
+      _rotateBox: function(box) {
+        return {w: box.h, h: box.w, _id: box._id};
+      },
+
+      _unFit: function(boxes) {
+        return boxes.map(function(box){
+          delete box.fit;
+          return box;
+        });
+      },
+
+      _setBestTry: function() {
+        this.tries = this.tries.sort(function(a, b){
+          return a.efficiency < b.efficiency;
+        });
+        let bestTry = this._unFit(this.tries[0].boxes);
+        this.finished = true;
+        this._setBoxes(bestTry);
+        this._calculateEfficiency(bestTry);
+      },
+
+      _arrayEqual: function(a, b) {
+        var i = a.length;
+        if (i != b.length) return false;
+        while (i--) {
+          if (a[i] !== b[i]) return false;
+        }
+        return true;
       }
     });
   </script>

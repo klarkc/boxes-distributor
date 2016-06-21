@@ -1,0 +1,72 @@
+<script>
+let Packer = function(w, h) {
+  this.init(w, h);
+};
+
+Packer.prototype = {
+
+  init: function(w, h) {
+    this.root = { x: 0, y: 0, w: w, h: h };
+  },
+
+  fit: function(blocks) {
+    var n, node, block;
+    for (n = 0; n < blocks.length; n++) {
+      block = blocks[n];
+      if (node = this.findNode(this.root, block.w, block.h))
+        block.fit = this.splitNode(node, block.w, block.h);
+    }
+  },
+
+  findNode: function(root, w, h) {
+    if (root.used)
+      return this.findNode(root.right, w, h) || this.findNode(root.down, w, h);
+    else if ((w <= root.w) && (h <= root.h))
+      return root;
+    else
+      return null;
+  },
+
+  splitNode: function(node, w, h) {
+    node.used = true;
+    node.down  = { x: node.x,     y: node.y + h, w: node.w,     h: node.h - h };
+    node.right = { x: node.x + w, y: node.y,     w: node.w - w, h: h          };
+    return node;
+  }
+
+}
+
+PackerBehavior = {
+  _generateTree: function(width, height, blocks) {
+    let packer = new Packer(width, height);
+
+    packer.fit(blocks);
+
+    this.fire('packed', blocks);
+  },
+  _sort: {
+
+    random  : function (a,b) { return Math.random() - 0.5; },
+    w       : function (a,b) { return b.w - a.w; },
+    h       : function (a,b) { return b.h - a.h; },
+    a       : function (a,b) { return b.area - a.area; },
+    max     : function (a,b) { return Math.max(b.w, b.h) - Math.max(a.w, a.h); },
+    min     : function (a,b) { return Math.min(b.w, b.h) - Math.min(a.w, a.h); },
+
+    height  : function (a,b) { return PackerBehavior._sort.msort(a, b, ['h', 'w']);               },
+    width   : function (a,b) { return PackerBehavior._sort.msort(a, b, ['w', 'h']);               },
+    area    : function (a,b) { return PackerBehavior._sort.msort(a, b, ['a', 'h', 'w']);          },
+    maxside : function (a,b) { return PackerBehavior._sort.msort(a, b, ['max', 'min', 'h', 'w']); },
+
+    msort: function(a, b, criteria) { /* sort by multiple criteria */
+      var diff, n;
+      for (n = 0 ; n < criteria.length ; n++) {
+        diff = PackerBehavior._sort[criteria[n]](a,b);
+        if (diff != 0)
+          return diff;
+      }
+      return 0;
+    }
+  }
+};
+</script>
