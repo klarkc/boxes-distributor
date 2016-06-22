@@ -40,60 +40,22 @@ Example:
       :host {
         display: block;
         box-sizing: border-box;
+        margin: 16px;
       }
 
       #container {
         background-color: var(--dark-theme-background-color);
         position: relative;
-        margin-top: 226px;
         margin-left: auto;
         margin-right: auto;
-        margin-bottom: 88px;
-      }
-
-      #container .info {
-        line-height: 50px;
-        position: absolute;
-        bottom: -86px;
-        width: 100%;
-      }
-
-      #container .info.top {
-        bottom: inherit;
-        top: -208px;
-      }
-
-      #efficiency {
-        color: red;
-      }
-
-      #slider {
-        width: 100%;
       }
     </style>
 
 
     <paper-material id="container">
-      <paper-material class="info top layout vertical">
-        <div class="layout horizontal around-justified">
-            <paper-input type="number" label="Truck width" value="{{truckWidth}}"></paper-input>
-            <paper-input type="number" label="Truck height" value="{{truckHeight}}"></paper-input>
-        </div>
-        <div class="layout horizontal around-justified">
-          <paper-input type="number" label="Box width" value="{{boxWidth}}"></paper-input>
-          <paper-input type="number" label="Box height" value="[[boxHeight]]"></paper-input>
-        </div>
-        <paper-slider id="slider" label = "Scale" min="1" max="3" step="0.1" value="{{scale}}"></paper-slider>
-      </paper-material>
-
       <template is="dom-repeat" items="{{boxes}}">
         <boxes-box box="{{item}}" scale="{{scale}}"></boxes-box>
       </template>
-
-      <paper-material class="info layout horizontal around-justified">
-        <p><span id="total">Number of boxes: 0</span></p>
-        <p><span id="efficiency">Layout efficiency: 0%</span></p>
-      </paper-material>
     </paper-material>
   </template>
 
@@ -150,7 +112,17 @@ Example:
           type: Number,
           value: 1,
           notify: true
-        }
+        },
+
+        /**
+         * `efficiency` the in percentage efficiency of the calculated box arrangement
+         */
+        efficiency: {
+          type: Number,
+          value: 0,
+          notify: true,
+          readOnly: true
+        },
       },
 
       observers: [
@@ -200,18 +172,10 @@ Example:
           return box.fit;
         }).length;
 
-        if(!fit) {
-          this.$.efficiency.innerHTML = 'Layout efficiency: 0%';
-          this.$.efficiency.style.color = 'red';
-          return 0;
-        }
+        if(!fit) return 0;
 
         let eff = 100 * fit / total;
-        this.$.efficiency.innerHTML = 'Layout efficiency: ' + eff + '%';
-        this.$.total.innerHTML = 'Number of boxes: ' + fit;
-        if(eff >= 50) this.$.efficiency.style.color = 'orange';
-        if(eff >= 80) this.$.efficiency.style.color = 'green';
-        console.log('efficiency', eff);
+        this._setEfficiency(eff);
         return eff;
       },
 

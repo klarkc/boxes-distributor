@@ -25,19 +25,77 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             text-align: center;
           }
 
-          boxes-distributor {
-            margin-top: 102px;
+          .info {
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+          }
+
+          .info.top {
+
+          }
+
+          #efficiency {
+            color: red;
+          }
+
+          #slider {
+            width: 100%;
           }
         </style>
         <h3>An example of a {{truckWidth}}x{{truckHeight}}px with {{boxWidth}}x{{boxHeight}}px boxes <code>&lt;boxes-distributor&gt</code> with scale {{scale}}:1 :</h3>
+
+        <paper-material class="info top layout vertical">
+        <div class="layout horizontal around-justified">
+            <paper-input
+                         type="number"
+                         label="Truck width"
+                         value="{{truckWidth}}"
+                         min="10"
+                         >
+          </paper-input>
+          <paper-input
+                         type="number"
+                         label="Truck height"
+                         value="{{truckHeight}}"
+                         min="10"
+                         >
+          </paper-input>
+        </div>
+        <div class="layout horizontal around-justified">
+          <paper-input
+                       type="number"
+                       label="Box width"
+                       value="{{boxWidth}}"
+                       min="10"
+                       >
+          </paper-input>
+          <paper-input type="number"
+                       label="Box height"
+                       value="[[boxHeight]]"
+                       min="10"
+                       >
+          </paper-input>
+        </div>
+        <paper-slider id="slider" label = "Scale" min="1" max="3" step="0.1" value="{{scale}}"></paper-slider>
+      </paper-material>
+
         <boxes-distributor
                            truck-width='{{truckWidth}}'
                            truck-height='{{truckHeight}}'
                            box-width='{{boxWidth}}'
                            box-height='{{boxHeight}}'
                            scale='{{scale}}'
+                           boxes='{{boxes}}'
+                           efficiency='{{efficiency}}'
                            >
         </boxes-distributor>
+
+        <paper-material class="info layout horizontal around-justified">
+          <p><span id="total">Number of boxes: [[boxes.length]]</span></p>
+          <p><span id="efficiency">{{_efficiency(efficiency)}}</span></p>
+        </paper-material>
+
       </template>
       <script>
         Polymer({
@@ -48,6 +106,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.boxWidth = 54;
             this.boxHeight = 42;
             this.scale = 2;
+          },
+          _boxesLength: function(boxes) {
+            return boxes.length;
+          },
+          _efficiency: function(eff) {
+            this.$.efficiency.innerHTML = 'Layout efficiency: ' + eff + '%';
+            if(eff >= 50) this.$.efficiency.style.color = 'orange';
+            if(eff >= 80) this.$.efficiency.style.color = 'green';
+            return "Efficiency: " + Math.round(eff) + "%";
           }
         });
       </script>
