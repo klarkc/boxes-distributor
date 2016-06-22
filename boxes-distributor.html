@@ -259,6 +259,11 @@ Example:
         });
       },
 
+       /**
+       * Fired when a request is sent.
+       *
+       * @event request
+       */
       _setBestTry: function() {
         this.tries = this.tries.sort(function(a, b){
           return b.efficiency - a.efficiency;
@@ -268,6 +273,7 @@ Example:
         //console.log('tries ordered by efficiency', this.tries);
         this._setBoxes(bestTry);
         this._calculateEfficiency(bestTry);
+        this.fire('finished');
       },
 
       _arrayEqual: function(a, b) {
