@@ -5,32 +5,85 @@ let Packer = function(w, h) {
 
 Packer.prototype = {
 
+  /**
+   * Init the Binary Tree Packer with a root block node
+   * @param {number} w width of the available space
+   * @param {number} h height of the available space
+   */
   init: function(w, h) {
-    this.root = { x: 0, y: 0, w: w, h: h };
+    this.root = { x: 0, y: 0, w: w, h: h};
   },
 
+  /**
+   * Fit block nodes in a place
+   * @param {Array} blocks the array of block nodes
+   */
   fit: function(blocks) {
     var n, node, block;
     for (n = 0; n < blocks.length; n++) {
       block = blocks[n];
-      if (node = this.findNode(this.root, block.w, block.h))
+      //console.log('analysing block', block);
+
+      // Find the next node to work on it
+      if (node = this.findNode(this.root, block.w, block.h)) {
+        // Split the found node in two more nodes (down and right)
         block.fit = this.splitNode(node, block.w, block.h);
+      }
+    }
+
+    //console.log('end', blocks);
+  },
+
+  /**
+   * Find a node recursively starting from the given node
+   * @param   {object}   root the parent node (local root)
+   * @param   {number} w    width of the node to be found
+   * @param   {number} h    height of the node to be found
+   * @returns {object} the found node or null
+   */
+  findNode: function(root, w, h) {
+    if (root.used) {
+
+      // This is used, look for right or down nodes
+      //console.log('node', root, 'used, going right')
+      let right = this.findNode(root.right, w, h);
+
+      if(right) {
+        //console.log('found right', right);
+        return right;
+      }
+
+      //console.log('going down');
+      let down = this.findNode(root.down, w, h);
+      if(down) {
+        //console.log('found down', down);
+      } else {
+        //console.log('not found, returning null');
+      }
+      return down;
+
+      // If not used, try find 'fiting' here
+    } else if ((w <= root.w) && (h <= root.h)) {
+      //console.log('found a node that fit', root);
+      return root;
+    } else {
+      //console.log('not found a node that fit', root);
+      return null;
     }
   },
 
-  findNode: function(root, w, h) {
-    if (root.used)
-      return this.findNode(root.right, w, h) || this.findNode(root.down, w, h);
-    else if ((w <= root.w) && (h <= root.h))
-      return root;
-    else
-      return null;
-  },
-
+  /**
+   * Split the node in two and set used
+   * @param   {object}   node The parent node to be splitted
+   * @param   {number} w    width of the child node
+   * @param   {number} h    height of the child node
+   * @returns {object} [[Description]]
+   */
   splitNode: function(node, w, h) {
     node.used = true;
     node.down  = { x: node.x,     y: node.y + h, w: node.w,     h: node.h - h };
     node.right = { x: node.x + w, y: node.y,     w: node.w - w, h: h          };
+    //console.log('splited', node.down, node.right);
     return node;
   }
 
