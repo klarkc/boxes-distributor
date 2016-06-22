@@ -161,10 +161,14 @@ Example:
        * @param {number} bH Height of the boxes
        */
       _calculateBoxes: function(tW, tH, bW, bH) {
-        //console.log(tW, tH, bW, bH);
+        if(!this._validateNumber(tW, tH, bW, bH)) return;
+        // console.log(tW, tH, bW, bH);
         let tArea = tW * tH;
         let bArea = bW * bH;
-        let boxes = new Array(Math.floor(tArea / bArea));
+        let nBoxes = Math.floor(tArea / bArea);
+        if(nBoxes < 1) return;
+
+        let boxes = new Array(nBoxes);
         let bId = 0;
         boxes = boxes.fill(null).map(function(){return {w: bW, h: bH, _id: ++bId}});
 
@@ -191,6 +195,7 @@ Example:
       },
 
       _setTruck: function(tW, tH) {
+        if(!this._validateNumber(tW, tH)) return;
         this.$.container.style.width = tW * this.scale + 'px';
         this.$.container.style.height = tH * this.scale + 'px';
       },
@@ -269,6 +274,24 @@ Example:
         if (i != b.length) return false;
         while (i--) {
           if (a[i] !== b[i]) return false;
+        }
+        return true;
+      },
+
+      _validateNumber: function() {
+        for(let arg in arguments) {
+          if(typeof arguments[arg] !== 'number') {
+            console.trace('invalid value type', typeof arguments[arg]);
+            return false;
+          }
+          if(arguments[arg] < 1) {
+            console.trace('invalid value', arguments[arg]);
+            return false;
+          }
+          if(isNaN(arguments[arg])) {
+            console.trace('not a number', arguments[arg]);
+            return false;
+          }
         }
         return true;
       }
