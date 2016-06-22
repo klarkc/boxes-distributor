@@ -88,11 +88,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                            scale='{{scale}}'
                            boxes='{{boxes}}'
                            efficiency='{{efficiency}}'
+                           unfitted='{{unfitted}}'
                            >
         </boxes-distributor>
 
         <paper-material class="info layout horizontal around-justified">
-          <p><span id="total">Number of boxes: [[boxes.length]]</span></p>
+          <p><span id="total">Number of boxes: {{_numberBoxes(boxes, unfitted)}}</span></p>
           <p><span id="efficiency">{{_efficiency(efficiency)}}</span></p>
         </paper-material>
 
@@ -107,8 +108,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             this.boxHeight = 42;
             this.scale = 2;
           },
-          _boxesLength: function(boxes) {
-            return boxes.length;
+          _numberBoxes: function(boxes, unfitted) {
+            return boxes.length - unfitted;
           },
           _efficiency: function(eff) {
             this.$.efficiency.innerHTML = 'Layout efficiency: ' + eff + '%';

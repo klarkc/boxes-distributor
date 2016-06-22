@@ -97,7 +97,7 @@ Example:
         },
 
         /**
-         * `boxes` the calculated boxes
+         * `boxes` all the calculated boxes that possible fits in the area
          */
         boxes: {
           type: Array,
@@ -115,9 +115,21 @@ Example:
         },
 
         /**
-         * `efficiency` the in percentage efficiency of the calculated box arrangement
+         * `efficiency` the in percentage efficiency of the calculated box
+         *  arrangement
          */
         efficiency: {
+          type: Number,
+          value: 0,
+          notify: true,
+          readOnly: true
+        },
+
+        /**
+         * `unfitted` the number of boxes that are not included in the arrangement
+         *  due to space limitations
+         */
+        unfitted: {
           type: Number,
           value: 0,
           notify: true,
@@ -172,10 +184,9 @@ Example:
           return box.fit;
         }).length;
 
-        if(!fit) return 0;
-
         let eff = 100 * fit / total;
         this._setEfficiency(eff);
+        this._setUnfitted(total - fit);
         return eff;
       },
 
@@ -222,8 +233,8 @@ Example:
         let rotatedIds = rotatedBoxes.map(function(b){return b._id});
         if( lastTry && this._arrayEqual(lastTry.rotatedIds, rotatedIds)) {
           console.log('last try was the same, stoping the efficiency search');
-          this._setBestTry();
-          return;
+          //this._setBestTry();
+          //return;
         }
 
         this.tries.push({boxes: boxes, rotatedIds: rotatedIds});
