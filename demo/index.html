@@ -43,52 +43,65 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             width: 100%;
           }
         </style>
-        <h3>An example of a {{truckWidth}}x{{truckHeight}}px with {{boxWidth}}x{{boxHeight}}px boxes <code>&lt;boxes-distributor&gt</code> with scale {{scale}}:1 :</h3>
+        <h3>An example of a [[truckWidth]]x[[truckHeight]]px with [[boxWidth]]x[[boxHeight]]px boxes <code>&lt;boxes-distributor&gt</code> with zoom of [[_computeZoom(scale)]]%:</h3>
 
         <paper-material class="info top layout vertical">
         <div class="layout horizontal around-justified">
-            <paper-input
-                         type="number"
-                         label="Truck width"
-                         value="{{truckWidth}}"
-                         min="10"
-                         >
+          <paper-input
+                       type="number"
+                       label="Truck width"
+                       value={{truckWidth}}
+                       min=10
+                       pattern="\d+"
+                       >
           </paper-input>
           <paper-input
-                         type="number"
-                         label="Truck height"
-                         value="{{truckHeight}}"
-                         min="10"
-                         >
+                       type="number"
+                       label="Truck height"
+                       value={{truckHeight}}
+                       min=10
+                       pattern="\d+"
+                       >
           </paper-input>
         </div>
         <div class="layout horizontal around-justified">
           <paper-input
                        type="number"
                        label="Box width"
-                       value="{{boxWidth}}"
-                       min="10"
+                       value={{boxWidth}}
+                       min=10
+
                        >
           </paper-input>
           <paper-input type="number"
                        label="Box height"
-                       value="[[boxHeight]]"
-                       min="10"
+                       value={{boxHeight}}
+                       min=10
+                       pattern="\d+"
                        >
           </paper-input>
         </div>
-        <paper-slider id="slider" label = "Scale" min="1" max="3" step="0.1" value="{{scale}}"></paper-slider>
+        <paper-slider
+                      id="slider"
+                      label="Scale"
+                      min=1
+                      max=3
+                      step=0.1
+                      value={{scale}}
+                      pattern="\d+"
+                      >
+          </paper-slider>
       </paper-material>
 
         <boxes-distributor
-                           truck-width='{{truckWidth}}'
-                           truck-height='{{truckHeight}}'
-                           box-width='{{boxWidth}}'
-                           box-height='{{boxHeight}}'
-                           scale='{{scale}}'
-                           boxes='{{boxes}}'
-                           efficiency='{{efficiency}}'
-                           unfitted='{{unfitted}}'
+                           truck-width={{tW}}
+                           truck-height={{tH}}
+                           box-width={{bW}}
+                           box-height={{bH}}
+                           scale={{sc}}
+                           boxes={{boxes}}
+                           efficiency={{efficiency}}
+                           unfitted={{unfitted}}
                            >
         </boxes-distributor>
 
@@ -101,13 +114,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <script>
         Polymer({
           is: 'app-demo',
-          ready: function(){
-            this.truckWidth = 300;
-            this.truckHeight = 192;
-            this.boxWidth = 54;
-            this.boxHeight = 42;
-            this.scale = 2;
+          properties: {
+            truckWidth: {
+              type: Number,
+              value: 300
+            },
+            truckHeight: {
+              type: Number,
+              value: 192
+            },
+            boxWidth: {
+              type: Number,
+              value: 54
+            },
+            boxHeight: {
+              type: Number,
+              value: 42
+            },
+            scale: {
+              type: Number,
+              value: 2
+            },
           },
+          observers: [
+            '_validate(truckWidth, truckHeight, boxWidth, boxHeight, scale)'
+          ],
           _numberBoxes: function(boxes, unfitted) {
             return boxes.length - unfitted;
           },
@@ -116,6 +147,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             if(eff >= 50) this.$.efficiency.style.color = 'orange';
             if(eff >= 80) this.$.efficiency.style.color = 'green';
             return "Efficiency: " + Math.round(eff) + "%";
+          },
+          _validate(tW, tH, bW, bH, scale) {
+            this.tW = parseInt(tW);
+            this.tH = parseInt(tH);
+            this.bW = parseInt(bW);
+            this.bH = parseInt(bH);
+            this.sc = parseFloat(scale);
+          },
+          _computeZoom(scale) {
+            return Math.round(scale * 100);
           }
         });
       </script>

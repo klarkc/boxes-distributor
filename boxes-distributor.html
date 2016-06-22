@@ -53,8 +53,8 @@ Example:
 
 
     <paper-material id="container">
-      <template is="dom-repeat" items="{{boxes}}">
-        <boxes-box box="{{item}}" scale="{{scale}}"></boxes-box>
+      <template is="dom-repeat" items="[[boxes]]">
+        <boxes-box box="[[item]]" scale=[[scale]]></boxes-box>
       </template>
     </paper-material>
   </template>
@@ -93,7 +93,7 @@ Example:
          */
         boxHeight: {
           type: Number,
-          notify: true,
+          notify: true
         },
 
         /**
@@ -139,7 +139,7 @@ Example:
 
       observers: [
         '_setTruck(truckWidth, truckHeight, scale)',
-        '_calculateBoxes(truckWidth, truckHeight, boxWidth, boxHeight, scale)',
+        '_calculateBoxes(truckWidth, truckHeight, boxWidth, boxHeight)',
         '_generateTree(truckWidth, truckHeight, boxes, scale)'
       ],
 
@@ -161,7 +161,7 @@ Example:
        * @param {number} bH Height of the boxes
        */
       _calculateBoxes: function(tW, tH, bW, bH) {
-        console.log(tW,tH,bW,bH);
+        //console.log(tW, tH, bW, bH);
         let tArea = tW * tH;
         let bArea = bW * bH;
         let boxes = new Array(Math.floor(tArea / bArea));
@@ -197,20 +197,20 @@ Example:
 
       _handlePacked: function(e) {
         if(this.finished) {
-          console.log('already finished, skipping handlePacked');
+          //console.log('already finished, skipping handlePacked');
           return;
         }
 
 
         if(this.tries.length > 20) {
           this._setBestTry();
-          console.log('max tries reached, finishing');
+          //console.log('max tries reached, finishing');
           return;
         }
 
         let eff = this._calculateEfficiency(e.detail);
         if( eff >= 99.9) {
-          console.log('max eficiency reached, finishing');
+          //console.log('max eficiency reached, finishing');
           return;
         } else if (this.tries.length > 0){
           this.tries[this.tries.length - 1].efficiency = eff;
@@ -232,14 +232,14 @@ Example:
         let lastTry = this.tries[this.tries.length - 1];
         let rotatedIds = rotatedBoxes.map(function(b){return b._id});
         if( lastTry && this._arrayEqual(lastTry.rotatedIds, rotatedIds)) {
-          console.log('last try was the same, stoping the efficiency search');
-          //this._setBestTry();
-          //return;
+          //console.log('last try was the same, stoping the efficiency search');
+          this._setBestTry();
+          return;
         }
 
         this.tries.push({boxes: boxes, rotatedIds: rotatedIds});
 
-        console.log('retrying with rotated', rotatedIds);
+        //console.log('retrying with rotated', rotatedIds);
         this._setBoxes(boxes);
       },
 

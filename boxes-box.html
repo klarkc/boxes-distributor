@@ -62,8 +62,7 @@ Example:
          * `box` the box object
          */
         box: {
-          type: Object,
-          observer: '_updatedBox'
+          type: Object
         },
 
         /**
@@ -75,7 +74,10 @@ Example:
         }
       },
 
+      observers: ['_updatedScale(scale)', '_updatedBox(box)'],
+
       _updatedBox: function(box) {
+        if(!this.scale) return;
         //console.log('updated box', box);
         this.style.width = box.w * this.scale + 'px';
         this.style.height = box.h * this.scale + 'px';
@@ -87,6 +89,18 @@ Example:
           this.style.top = box.fit.y * this.scale + 'px';
         } else {
           this.style.display = 'none';
+        }
+      },
+
+      _updatedScale: function(scale) {
+        if(!this.box) return;
+        //console.log('updated scale', scale);
+        this.style.width = this.box.w * scale + 'px';
+        this.style.height = this.box.h * scale + 'px';
+        this.style.lineHeight = this.box.h * scale + 'px';
+        if(this.box.fit) {
+          this.style.left = this.box.fit.x * scale + 'px';
+          this.style.top = this.box.fit.y * scale + 'px';
         }
       },
 
