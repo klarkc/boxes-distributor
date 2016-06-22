@@ -12,7 +12,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../paper-styles/default-theme.html">
 
 <!--
-This element distributes boxes with a ideal layout to use the maximum of available space in outer boxes
+This represents a box to be used in boxes-distributor
 
 Example:
 
@@ -76,6 +76,10 @@ Example:
 
       observers: ['_updatedScale(scale)', '_updatedBox(box)'],
 
+      /**
+       * Updates this box
+       * @param {object} the box to be used as reference
+       */
       _updatedBox: function(box) {
         if(!this.scale) return;
         //console.log('updated box', box);
@@ -96,6 +100,10 @@ Example:
         }
       },
 
+      /**
+       * Updates the scale of this box
+       * @param {number} scale the new scale to be used as reference
+       */
       _updatedScale: function(scale) {
         if(!this.box) return;
         //console.log('updated scale', scale);
@@ -108,6 +116,10 @@ Example:
         }
       },
 
+      /**
+       * Pick a random light color
+       * @returns {string} css rbg color
+       */
       _getRandomColor: function() {
         return 'rgb('
           + (Math.floor((256-160)*Math.random()) + 170)

@@ -149,8 +149,6 @@ Example:
 
       behaviors: [PackerBehavior],
 
-      // Element Lifecycle
-
       // Element Behavior
 
       /**
@@ -181,6 +179,11 @@ Example:
         this._setBoxes(boxes);
       },
 
+      /**
+       * Calculates the arrangement efficiency
+       * @param   {Array} boxes Array of all boxes to calculate
+       * @returns {number} the calculated efficiency
+       */
       _calculateEfficiency: function(boxes) {
         let total = boxes.length;
 
@@ -194,12 +197,21 @@ Example:
         return eff;
       },
 
+      /**
+       * Set the truck available space
+       * @param {number} tW Width of the space
+       * @param {[[Type]]} tH Height of the space
+       */
       _setTruck: function(tW, tH) {
         if(!this._validateNumber(tW, tH)) return;
         this.$.container.style.width = tW * this.scale + 'px';
         this.$.container.style.height = tH * this.scale + 'px';
       },
 
+      /**
+       * Handles the packed boxes (after all calculations by the algorithm are made)
+       * @param {object} e The event dispatched
+       */
       _handlePacked: function(e) {
         if(this.finished) {
           //console.log('already finished, skipping handlePacked');
@@ -248,10 +260,20 @@ Example:
         this._setBoxes(boxes);
       },
 
+      /**
+       * Rotate a single box
+       * @param   {object} box The box (width w, h and _id properties)
+       * @returns {object} a new rotated box
+       */
       _rotateBox: function(box) {
         return {w: box.h, h: box.w, _id: box._id};
       },
 
+      /**
+       * Removes fit object from boxes
+       * @param   {Array} boxes Array of boxes with the fit object
+       * @returns {Array} the same boxes without fit object
+       */
       _unFit: function(boxes) {
         return boxes.map(function(box){
           delete box.fit;
@@ -259,10 +281,15 @@ Example:
         });
       },
 
-       /**
-       * Fired when a request is sent.
+      /**
+       * Fired when the boxes-distributor did all the calculations and finish its work
        *
-       * @event request
+       * @event finished
+       */
+
+      /**
+       * Chooses the best arrangement calculation from tries array and
+       * dispatches the chosen one to the needed functions
        */
       _setBestTry: function() {
         this.tries = this.tries.sort(function(a, b){
@@ -276,6 +303,12 @@ Example:
         this.fire('finished');
       },
 
+      /**
+       * Compares two arrays by each value
+       * @param   {Array} a The first array
+       * @param   {Array} b The second array
+       * @returns {boolean}  true if they are equal
+       */
       _arrayEqual: function(a, b) {
         var i = a.length;
         if (i != b.length) return false;
@@ -285,6 +318,10 @@ Example:
         return true;
       },
 
+      /**
+       * Validates numeric variables passed in arguments
+       * @returns {boolean} true if all variables has been validated
+       */
       _validateNumber: function() {
         for(let arg in arguments) {
           if(typeof arguments[arg] !== 'number') {
