@@ -82,12 +82,16 @@ Example:
         this.style.width = box.w * this.scale + 'px';
         this.style.height = box.h * this.scale + 'px';
         this.style.lineHeight = box.h * this.scale + 'px';
-        this.style.backgroundColor = this._getRandomColor();
         if(box.fit) {
           this.style.display = 'block';
           this.style.left = box.fit.x * this.scale + 'px';
           this.style.top = box.fit.y * this.scale + 'px';
+          if(!this.alreadyFitted){
+            this.style.backgroundColor = this._getRandomColor();
+            this.alreadyFitted = true;
+          }
         } else {
+          this.alreadyFitted = false;
           this.style.display = 'none';
         }
       },
@@ -105,12 +109,11 @@ Example:
       },
 
       _getRandomColor: function() {
-        let letters = '0123456789ABCDEF'.split('');
-        let color = '#';
-        for (var i = 0; i < 6; i++ ) {
-          color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
+        return 'rgb('
+          + (Math.floor((256-160)*Math.random()) + 170)
+          + ',' + (Math.floor((256-160)*Math.random()) + 170)
+          + ',' + (Math.floor((256-160)*Math.random()) + 170)
+          + ')';
       }
     });
   </script>
