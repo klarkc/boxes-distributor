@@ -44,7 +44,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           assert.equal(myEl.scale, 1);
         });
 
-        suite('_updatedBox', function(){
+        suite('_updatedBox function', function(){
           test('without fitted box', function() {
             myEl._updatedBox(box);
 
@@ -55,7 +55,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             assert.equal(myEl.style.display, 'none');
           });
 
-          test('test _updatedBox with fitted box', function() {
+          test('with fitted box', function() {
             box.fit = {
               x: 10,
               y: 10
@@ -69,7 +69,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           });
         });
 
-        suite('_updatedScale', function(){
+        suite('_updatedScale function', function(){
           test('without fitted box', function() {
             myEl.box = box;
             myEl._updatedScale(10);
