@@ -42,6 +42,8 @@ Packer.prototype = {
    * @returns {object} the found node or null
    */
   findNode: function(root, w, h) {
+    if(root == undefined) throw new Error('root is undefined');
+
     if (root.used) {
 
       // This is used, look for right or down nodes
