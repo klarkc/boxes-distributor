@@ -3,7 +3,7 @@ node_js: stable
 dist: trusty
 sudo: required
 addons:
-  firefox: latest
+  firefox: "46.0"
   sauce_connect: true
   apt:
     sources:
@@ -15,8 +15,7 @@ before_script:
 - bower install
 - polylint
 script:
-- xvfb-run wct --skip-plugin sauce
-- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then wct --skip-plugin local; fi
+- xvfb-run wct --plugin sauce --plugin local
 env:
   global:
   - secure: gZ5vpMlc9fuKSZeMmT6xf4+FIVWxET6f6Lkp6l5Qo9vL2X/KC/bMJF1v2w5xXFLFTdm/hPUDkeQRDUBBJhGcsXhJeWIvAXdPkObV9ZPRwpDnnN1qU5lOqVIy6gFjDm2Wm6UNXcRnyP1TrGpMwbG13EUtD0rF8LZqBm3B833sKS4=
