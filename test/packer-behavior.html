@@ -1,0 +1,158 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <!-- Step 1: import the element to test -->
+    <link rel="import" href="../packer-behavior.html">
+  </head>
+  <body>
+    <script>
+      suite('packer-behavior', function() {
+        suite('Packer class', function() {
+          var packer;
+
+          setup(function(){
+            packer = new Packer(10,10);
+          });
+
+          test('test splitNode function', function(){
+            let node = packer.splitNode({x: 10, y: 10, w: 10, h: 10}, 10, 10);
+
+            assert.deepEqual(node, {
+              x: 10, y: 10, w: 10, h: 10,
+              used: true,
+              down: {x: 10,y: 20,w: 10,h: 0},
+              right: {x: 20,y: 10,w: 0,h: 10},
+            });
+          });
+
+          test('test fit function', function(){
+            // Stub findNode and splitNode
+            packer.findNode = sinon.stub().returnsArg(0);
+            packer.splitNode = sinon.stub().returns(true);
+
+            let blocks = [{w: 1, h: 2}, {w: 1, h: 2}];
+            packer.fit(blocks);
+
+            sinon.assert.calledTwice(packer.findNode);
+            sinon.assert.alwaysCalledWith(
+              packer.findNode,
+              packer.root,
+              1,
+              2
+            );
+            sinon.assert.calledTwice(packer.splitNode);
+            sinon.assert.alwaysCalledWith(
+              packer.splitNode,
+              packer.root,
+              1,
+              2
+            );
+            assert.deepEqual(blocks, [
+              {w: 1, h: 2, fit: true},
+              {w: 1, h: 2, fit: true}
+            ]);
+          });
+
+          suite('findNode function', function(){
+            var node;
+
+            test('with a not used node that not fits', function(){
+              assert.isNull(packer.findNode({w: 15}, 10, 10));
+              assert.isNull(packer.findNode({h: 15}, 10, 10));
+            });
+
+            test('with a not used node that fits', function(){
+              node = {w: 10, h: 10};
+              assert.equal(packer.findNode(node, 10, 10), node);
+
+              node = {w: 11, h: 11};
+              assert.equal(packer.findNode(node, 10, 10), node);
+            });
+
+            test('with a used node without children', function(){
+              node = {used: true};
+              assert.throws(function(){
+                packer.findNode(node, 10, 10);
+              }, 'root is undefined');
+            });
+
+            test('with a used node with a right child', function(){
+              let right = {w: 15, h: 15}
+              node = {used: true, right: right};
+              assert.equal(packer.findNode(node, 10, 10), right);
+            });
+
+            test('with a used node with a down child', function(){
+              let down = {w: 15, h: 15}
+              node = {
+                used: true,
+                right: {w: 5, h: 5},
+                down: down
+              };
+              assert.equal(packer.findNode(node, 10, 10), down);
+            });
+          });
+        });
+
+        suite('PackerBehavior', function(){
+          test('test _generateTree function', function(){
+            let fitSpy = sinon.spy();
+            let packerSpy = sinon.spy();
+            let fireSpy = sinon.spy();
+
+            // Spy Packer
+            Packer = function(w, h) {
+              packerSpy(w, h);
+              this.fit = fitSpy;
+            };
+
+            // Spy fire event
+            PackerBehavior.fire = fireSpy;
+
+            let blocks = [];
+            let w = 1;
+            let h = 2;
+
+            PackerBehavior._generateTree(w, h, blocks);
+
+            sinon.assert.calledWith(fitSpy, blocks);
+            sinon.assert.calledWith(packerSpy, w, h);
+            sinon.assert.calledWith(fireSpy, 'packed', blocks);
+          });
+
+          test('test _sort functions', function(){
+            let a = {w: 1, h: 2, area: 3};
+            let b = {w: 4, h: 5, area: 6};
+            let s = PackerBehavior._sort;
+            assert.isNumber(s.random({}, {}));
+            assert.equal(s.w(a, b), 3);
+            assert.equal(s.h(a, b), 3);
+            assert.equal(s.a(a, b), 3);
+            assert.equal(s.max(a, b), 3);
+            assert.equal(s.min(a, b), 3);
+            assert.equal(s.height(a, b), 3);
+            assert.equal(s.width(a, b), 3);
+            assert.equal(s.area(a, b), 3);
+            assert.equal(s.maxside(a, b), 3);
+          });
+        });
+      });
+    </script>
+
+  </body>
+</html>
