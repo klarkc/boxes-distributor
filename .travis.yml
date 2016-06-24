@@ -3,13 +3,19 @@ node_js: stable
 dist: trusty
 sudo: required
 addons:
+  firefox: '46.0'
   sauce_connect: true
+  apt:
+    sources:
+    - google-chrome
+    packages:
+    - google-chrome-stable
 before_script:
 - npm install -g bower polylint web-component-tester
 - bower install
 - polylint
 script:
-- xvfb-run wct --skip-plugin local --plugin sauce
+- xvfb-run wct
 env:
   global:
   - secure: PihyCHbTtJcJD+YsI6kXFjFC8DLYSHJbghSBwGmeiyXouOjGLbb/KQYNDauw1wWihzCc/1NJsFjcTvnzwJR7Td6k5Xs02VbrA7dgcS7DOyGjP6JEyYM34iZMVU/upg3eIy++kAwOEJtp8pS2I64DzIlLoJgu14d2GnCqpqhDzW56Z4gtVZpfHSmX9ovD819OG62M0JFeeUAezzpmPOiHTy1uDGDnYaCU7CNzBy4uIiPKHiIfkh7SvsLumpXF5yJC6/0vRjqwN5yKtpauO4QI4cgg7K1hl5BfNqEuFEQaJKCYBBY5Jp9vqiDYUv6D1MfgyDUFoUSy8Fh0RCnKR1lenhDrsMveNXfgPxJloYoG/8Gl+yBHXjgNyUD90JEoMw/OqgBGTcolvLHGPJYcGmeI6anOEd35cMSnLLXf4X3z+MIiyCl+0bDkILpHuQwpYT6N4VytFWxp+qERf/Y2t8s6UWFjBq4FFmMp9Qe1pqwI7RJsydYIoTv6HmNMB9oPf9ryqa/Cd8+lbaEipQ2KTFrbdwIKO5PONgZHLRzoIIF56CzCKytOYT8cppw4a1KyO04IRvqRi6qmF4CMcM1SDs/nrRWFJSjlY8+ytC65TTsfyYUwHvCdV9MG3br/vUYsntXpazqXz2SoQvulqnS9/brp814KPri1oOOYY+uzWTftpPs=

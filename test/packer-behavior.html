@@ -30,7 +30,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           });
 
           test('test splitNode function', function(){
-            var node = packer.splitNode({x: 10, y: 10, w: 10, h: 10}, 10, 10);
+            let node = packer.splitNode({x: 10, y: 10, w: 10, h: 10}, 10, 10);
 
             assert.deepEqual(node, {
               x: 10, y: 10, w: 10, h: 10,
@@ -45,7 +45,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             packer.findNode = sinon.stub().returnsArg(0);
             packer.splitNode = sinon.stub().returns(true);
 
-            var blocks = [{w: 1, h: 2}, {w: 1, h: 2}];
+            let blocks = [{w: 1, h: 2}, {w: 1, h: 2}];
             packer.fit(blocks);
 
             sinon.assert.calledTwice(packer.findNode);
@@ -92,13 +92,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             });
 
             test('with a used node with a right child', function(){
-              var right = {w: 15, h: 15}
+              let right = {w: 15, h: 15}
               node = {used: true, right: right};
               assert.equal(packer.findNode(node, 10, 10), right);
             });
 
             test('with a used node with a down child', function(){
-              var down = {w: 15, h: 15}
+              let down = {w: 15, h: 15}
               node = {
                 used: true,
                 right: {w: 5, h: 5},
@@ -111,9 +111,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         suite('PackerBehavior', function(){
           test('test _generateTree function', function(){
-            var fitSpy = sinon.spy();
-            var packerSpy = sinon.spy();
-            var fireSpy = sinon.spy();
+            let fitSpy = sinon.spy();
+            let packerSpy = sinon.spy();
+            let fireSpy = sinon.spy();
 
             // Spy Packer
             Packer = function(w, h) {
@@ -124,9 +124,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             // Spy fire event
             PackerBehavior.fire = fireSpy;
 
-            var blocks = [];
-            var w = 1;
-            var h = 2;
+            let blocks = [];
+            let w = 1;
+            let h = 2;
 
             PackerBehavior._generateTree(w, h, blocks);
 
@@ -136,9 +136,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           });
 
           test('test _sort functions', function(){
-            var a = {w: 1, h: 2, area: 3};
-            var b = {w: 4, h: 5, area: 6};
-            var s = PackerBehavior._sort;
+            let a = {w: 1, h: 2, area: 3};
+            let b = {w: 4, h: 5, area: 6};
+            let s = PackerBehavior._sort;
             assert.isNumber(s.random({}, {}));
             assert.equal(s.w(a, b), 3);
             assert.equal(s.h(a, b), 3);

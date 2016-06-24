@@ -4,25 +4,17 @@
       "browsers": ["chrome", "firefox"]
     },
     "sauce": {
-      "disabled": true,
-      "browsers": [
-        {
-          "browserName": "chrome",
-          "platform": "Linux",
-          "version": "latest"
-        }, {
-          "browserName": "firefox",
-          "platform": "Linux",
-          "version": "latest"
-        }, {
+      "disabled": false,
+      "browsers": [{
           "browserName": "microsoftedge",
           "platform": "Windows 10",
-          "version": "latest"
+          "version": ""
         }, {
           "browserName": "internet explorer",
           "platform": "Windows 8.1",
           "version": "11"
-        }, {
+        },
+        {
           "browserName": "safari",
           "platform": "OS X 10.11",
           "version": "9"

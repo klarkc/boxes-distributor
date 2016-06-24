@@ -1,5 +1,3 @@
-<link rel="import" href="../polymer/polymer.html">
-
 <script>
 let Packer = function(w, h) {
   this.init(w, h);
@@ -96,7 +94,7 @@ Packer.prototype = {
 /**
  * @polymerBehavior PackerBehavior
  */
-window.PackerBehavior = {
+PackerBehavior = {
   _generateTree: function(width, height, blocks) {
     let packer = new Packer(width, height);
 
