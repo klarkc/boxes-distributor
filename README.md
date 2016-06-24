@@ -1,4 +1,10 @@
-# boxes-distributor
+boxes-distributor
+=
+
+[![Travis][travis-image]][travis-url]
+
+[travis-image]: https://img.shields.io/travis/klarkc/boxes-distributor/master.svg
+[travis-url]: https://travis-ci.org/klarkc/boxes-distributor
 
 An element providing a starting point for your own reusable Polymer elements.
 
