@@ -6,8 +6,39 @@ boxes-distributor
 [travis-image]: https://img.shields.io/travis/klarkc/boxes-distributor/master.svg
 [travis-url]: https://travis-ci.org/klarkc/boxes-distributor
 
-An element providing a starting point for your own reusable Polymer elements.
+This element try to organize boxes in a truck in the most efficient layout. Example:
 
+```
+Bad layout example:
+
+           300
+x-------------------------x
+|         |         |     |              
+|         |         |     |
+|  54x42  |  54x42  |     | 192
+|         |         |     |     
+|         |         |     |          
+x-------------------------x
+
+Total: 2 boxes
+
+
+Good layout example!
+
+           300
+x-------------------------x
+|         |               |
+|         |     42x54     |
+|  54x42  |---------------| 192
+|         |     42x54     |
+|         |               |
+x-------------------------x
+
+Total: 3 boxes
+
+```
+
+Demo and API: https://klarkc.github.io/boxes-distributor/
 
 ## Dependencies
 

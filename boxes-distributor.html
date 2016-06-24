@@ -17,6 +17,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="boxes-box.html">
 <link rel="import" href="packer-behavior.html">
 
+<script src="array.fill_polyfill.js"></script>
+
 <!--
 This element distributes boxes with a ideal layout to use the maximum of available space in trucks
 
@@ -200,7 +202,7 @@ Example:
       /**
        * Set the truck available space
        * @param {number} tW Width of the space
-       * @param {[[Type]]} tH Height of the space
+       * @param {number} tH Height of the space
        */
       _setTruck: function(tW, tH) {
         if(!this._validateNumber(tW, tH)) return;
@@ -239,13 +241,6 @@ Example:
 
         let rotatedBoxes = missingBoxes.map(this._rotateBox);
 
-        let boxes = this._unFit(e.detail).map(function(box){
-          let rbox = rotatedBoxes.filter(function(rBox){
-            return rBox._id === box._id;
-          });
-          return rbox[0] || box;
-        }).sort(this._sort.maxside);
-
         let lastTry = this.tries[this.tries.length - 1];
         let rotatedIds = rotatedBoxes.map(function(b){return b._id});
         if( lastTry && this._arrayEqual(lastTry.rotatedIds, rotatedIds)) {
@@ -253,6 +248,13 @@ Example:
           this._setBestTry();
           return;
         }
+
+        let boxes = this._unFit(e.detail).map(function(box){
+          let rbox = rotatedBoxes.filter(function(rBox){
+            return rBox._id === box._id;
+          });
+          return rbox[0] || box;
+        }).sort(this._sort.maxside);
 
         this.tries.push({boxes: boxes, rotatedIds: rotatedIds});
 

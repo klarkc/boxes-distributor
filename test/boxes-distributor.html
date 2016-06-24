@@ -15,6 +15,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../../web-component-tester/browser.js"></script>
+    <script src="../array.fill_polyfill.js"></script>
 
     <!-- Step 1: import the element to test -->
     <link rel="import" href="../boxes-distributor.html">
@@ -43,57 +44,178 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         test('defines the "scale" property', function() {
           assert.equal(myEl.scale, 1);
         });
-          
+
         test('defines the "efficiency" property', function() {
           assert.equal(myEl.efficiency, 0);
         });
 
-        suite('_updatedBox function', function(){
-          test('without fitted box', function() {
-            myEl._updatedBox(box);
+        test('defines the "unfitted" property', function() {
+          assert.equal(myEl.unfitted, 0);
+        });
 
-            assert.equal(myEl.style.width, '10px');
-            assert.equal(myEl.style.height, '10px');
-            assert.equal(myEl.style.lineHeight, '10px');
-            assert.isNotTrue(myEl.style.alreadyFitted);
-            assert.equal(myEl.style.display, 'none');
+        test('test _validateNumber function', function(){
+          assert.isFalse(myEl._validateNumber('a'));
+          assert.isFalse(myEl._validateNumber(NaN));
+          assert.isTrue(myEl._validateNumber(1));
+        });
+
+        test('test _arrayEqual function', function(){
+          assert.isFalse(myEl._arrayEqual([2],[1]));
+          assert.isTrue(myEl._arrayEqual([1],[1]));
+        });
+
+        test('test _setBestTry function', function(){
+          // Create stubs & spies
+          myEl._unFit = sinon.stub().returnsArg(0);
+          myEl._setBoxes = sinon.spy();
+          myEl._calculateEfficiency = sinon.spy();
+          myEl.fire = sinon.spy();
+
+          // Configure test
+          let bestTry = {};
+          myEl.tries = [
+            {boxes: {}, efficiency: 0},
+            {boxes: bestTry, efficiency: 1}
+          ];
+
+          myEl._setBestTry();
+
+          // Assertions
+          sinon.assert.calledWith(myEl._unFit, bestTry);
+          assert.isTrue(myEl.finished);
+          sinon.assert.calledWith(myEl._setBoxes, bestTry);
+          sinon.assert.calledWith(myEl._calculateEfficiency, bestTry);
+          sinon.assert.calledWith(myEl.fire, 'finished');
+        });
+
+        test('test _unFit function', function(){
+          assert.deepEqual(myEl._unFit([{fit: true}]), [{}]);
+        });
+
+        test('test _rotateBox function', function(){
+          assert.deepEqual(
+            myEl._rotateBox({w: 1, h:2, _id: 3}),
+            {w: 2, h: 1, _id: 3}
+          );
+        });
+
+        suite('test _handlePacked function', function(){
+          test('with finished property', function(){
+            myEl._calculateEfficiency = sinon.spy();
+
+            myEl.finished = true;
+
+            myEl._handlePacked({detail: true});
+            sinon.assert.notCalled(myEl._calculateEfficiency);
           });
 
-          test('with fitted box', function() {
-            box.fit = {
-              x: 10,
-              y: 10
-            }
-            myEl._updatedBox(box);
-            assert.equal(myEl.style.display, 'block');
-            assert.equal(myEl.style.left, '10px');
-            assert.equal(myEl.style.top, '10px');
-            assert.isDefined(myEl.style.backgroundColor);
-            assert.isTrue(myEl.alreadyFitted);
+          test('with tries limit reached', function(){
+            myEl._setBestTry = sinon.spy();
+
+            myEl.tries = Array(21);
+            myEl.tries.fill(null);
+
+            myEl._handlePacked({detail: true});
+
+            sinon.assert.calledOnce(myEl._setBestTry);
+          });
+
+          test('with efficiency >= 100', function(){
+            myEl._calculateEfficiency = sinon.stub().returnsArg(0);
+            myEl._setBoxes = sinon.spy();
+
+            myEl.tries = [];
+
+            myEl._handlePacked({detail: 100});
+
+            sinon.assert.calledOnce(myEl._calculateEfficiency);
+            sinon.assert.notCalled(myEl._setBoxes);
+          });
+
+          test('with lastTry equal to actual', function(){
+            // Create stubs & spies
+            myEl._calculateEfficiency = sinon.stub().returns(0);
+            myEl._rotateBox = sinon.stub().returnsArg(0);
+            myEl._setBoxes = sinon.spy();
+            myEl._setBestTry = sinon.spy();
+
+            // Configure
+            myEl.tries = [
+              {w: 1, h:1, _id: 1, rotatedIds: [1]}
+            ];
+            myEl._handlePacked({detail: myEl.tries});
+
+            // Assertions
+            sinon.assert.notCalled(myEl._setBoxes);
+            sinon.assert.calledOnce(myEl._calculateEfficiency);
+            sinon.assert.calledWith(myEl._rotateBox, myEl.tries[0]);
+            sinon.assert.calledOnce(myEl._setBestTry);
+          });
+
+          test('with no other condition', function(){
+            // Create stubs & spies
+            myEl._calculateEfficiency = sinon.stub().returns(0);
+            myEl._rotateBox = sinon.stub().returnsArg(0);
+            myEl._setBestTry = sinon.spy();
+            myEl._unFit = sinon.stub().returnsArg(0);
+            myEl._setBoxes = sinon.spy();
+
+            // Configure
+            myEl.tries = [
+              {w: 1, h:1, _id: 1, rotatedIds: [2]}
+            ];
+            myEl._handlePacked({detail: myEl.tries});
+
+            // Assertions
+            sinon.assert.notCalled(myEl._setBestTry);
+            sinon.assert.calledOnce(myEl._calculateEfficiency);
+            sinon.assert.calledWith(myEl._rotateBox, myEl.tries[0]);
+            sinon.assert.calledWith(myEl._setBoxes, sinon.match.array);
           });
         });
 
-        suite('_updatedScale function', function(){
-          test('without fitted box', function() {
-            myEl.box = box;
-            myEl._updatedScale(10);
+        test('test _setTruck function', function(){
+          myEl._setTruck('a', 'b');
+          assert.equal(myEl.$.container.style.width, '');
+          assert.equal(myEl.$.container.style.height, '');
 
-            assert.equal(myEl.style.width, '100px');
-            assert.equal(myEl.style.height, '100px');
-            assert.equal(myEl.style.lineHeight, '100px');
-          });
+          myEl._setTruck(100, 100)
+          assert.equal(myEl.$.container.style.width, '100px');
+          assert.equal(myEl.$.container.style.height, '100px');
+        });
 
-          test('with fitted box', function() {
-            box.fit = {
-              x: 10,
-              y: 10
-            }
-            myEl.box = box;
-            myEl._updatedScale(10);
+        test('test _calculateEfficiency function', function(){
+          myEl._setEfficiency = sinon.spy();
+          myEl._setUnfitted = sinon.spy();
 
-            assert.equal(myEl.style.left, '100px');
-            assert.equal(myEl.style.top, '100px');
-          });
+          let boxes = Array(5);
+          boxes.fill({fit: true});
+
+          let eff = myEl._calculateEfficiency(boxes);
+
+          sinon.assert.calledWith(myEl._setEfficiency, 100);
+          sinon.assert.calledWith(myEl._setUnfitted, 0);
+          assert.equal(eff, 100);
+        });
+
+        test('test _calculateBoxes function', function(){
+          myEl._setBoxes = sinon.spy();
+
+          myEl._calculateBoxes('100', '100', '50', '50');
+          sinon.assert.notCalled(myEl._setBoxes);
+
+          myEl._calculateBoxes(10, 10, 50, 50);
+          sinon.assert.notCalled(myEl._setBoxes);
+
+          myEl._calculateBoxes(100, 100, 50, 50);
+          assert.isArray(myEl.tries);
+          assert.isFalse(myEl.finished);
+          sinon.assert.calledWith(myEl._setBoxes, [
+            {w: 50, h: 50, _id: 1},
+            {w: 50, h: 50, _id: 2},
+            {w: 50, h: 50, _id: 3},
+            {w: 50, h: 50, _id: 4}
+          ]);
         });
       });
     </script>
