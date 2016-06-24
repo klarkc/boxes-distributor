@@ -1,10 +1,7 @@
 boxes-distributor
 =
 
-[![Travis][travis-image]][travis-url]
-
-[travis-image]: https://img.shields.io/travis/klarkc/boxes-distributor/master.svg
-[travis-url]: https://travis-ci.org/klarkc/boxes-distributor
+[![Build Status](https://saucelabs.com/open_sauce/build_matrix/klarkc.svg)](https://saucelabs.com/beta/builds/b3308f51395b49b08b319b5b27b4cca5)
 
 An element providing a starting point for your own reusable Polymer elements.
 
