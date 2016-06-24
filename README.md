@@ -6,6 +6,8 @@ boxes-distributor
 [travis-image]: https://img.shields.io/travis/klarkc/boxes-distributor/master.svg
 [travis-url]: https://travis-ci.org/klarkc/boxes-distributor
 
+Demo and API: https://klarkc.github.io/boxes-distributor/
+
 This element try to organize boxes in a truck in the most efficient layout. Example:
 
 ```
@@ -37,8 +39,6 @@ x-------------------------x
 Total: 3 boxes
 
 ```
-
-Demo and API: https://klarkc.github.io/boxes-distributor/
 
 ## Dependencies
 
