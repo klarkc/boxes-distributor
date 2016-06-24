@@ -1,8 +1,7 @@
 {
   "name": "boxes-distributor",
-  "version": "1.0.7",
-  "authors": [
-    "Anonymous <anonymous@example.com>"
+    "authors": [
+    "Walker Leite <walker@praiseweb.com.br>"
   ],
   "description": "An element providing a solution to no problem in particular.",
   "keywords": [
