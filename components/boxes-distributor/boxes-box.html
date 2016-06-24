@@ -1,0 +1,132 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-styles/default-theme.html">
+
+<!--
+This represents a box to be used in boxes-distributor
+
+Example:
+
+    <boxes-box
+                       box-width='54'
+                       box-height='42'
+                       >
+    </boxes-box>
+
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="boxes-box">
+  <template>
+    <style>
+      :host {
+        display: none;
+        box-sizing: border-box;
+        position: absolute;
+        overflow: hidden;
+        border: 1px solid;
+        border-color: var(--dark-theme-divider-color);
+        text-align: center;
+        cursor: pointer;
+      }
+
+      /* Disable text selection */
+      :host {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none;   /* Chrome/Safari/Opera */
+        -khtml-user-select: none;    /* Konqueror */
+        -moz-user-select: none;      /* Firefox */
+        -ms-user-select: none;       /* Internet Explorer/Edge */
+        user-select: none;
+      }
+    </style>
+    <span>{{box._id}}</span>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'boxes-box',
+
+      properties: {
+         /**
+         * `box` the box object
+         */
+        box: {
+          type: Object
+        },
+
+        /**
+         * `scale` the scale multiplier of all the sizes
+         */
+        scale: {
+          type: Number,
+          value: 1
+        }
+      },
+
+      observers: ['_updatedScale(scale)', '_updatedBox(box)'],
+
+      /**
+       * Updates this box
+       * @param {object} the box to be used as reference
+       */
+      _updatedBox: function(box) {
+        if(!this.scale) return;
+        //console.log('updated box', box);
+        this.style.width = box.w * this.scale + 'px';
+        this.style.height = box.h * this.scale + 'px';
+        this.style.lineHeight = box.h * this.scale + 'px';
+        if(box.fit) {
+          this.style.display = 'block';
+          this.style.left = box.fit.x * this.scale + 'px';
+          this.style.top = box.fit.y * this.scale + 'px';
+          if(!this.alreadyFitted){
+            this.style.backgroundColor = this._getRandomColor();
+            this.alreadyFitted = true;
+          }
+        } else {
+          this.alreadyFitted = false;
+          this.style.display = 'none';
+        }
+      },
+
+      /**
+       * Updates the scale of this box
+       * @param {number} scale the new scale to be used as reference
+       */
+      _updatedScale: function(scale) {
+        if(!this.box) return;
+        //console.log('updated scale', scale);
+        this.style.width = this.box.w * scale + 'px';
+        this.style.height = this.box.h * scale + 'px';
+        this.style.lineHeight = this.box.h * scale + 'px';
+        if(this.box.fit) {
+          this.style.left = this.box.fit.x * scale + 'px';
+          this.style.top = this.box.fit.y * scale + 'px';
+        }
+      },
+
+      /**
+       * Pick a random light color
+       * @returns {string} css rbg color
+       */
+      _getRandomColor: function() {
+        return 'rgb('
+          + (Math.floor((256-160)*Math.random()) + 170)
+          + ',' + (Math.floor((256-160)*Math.random()) + 170)
+          + ',' + (Math.floor((256-160)*Math.random()) + 170)
+          + ')';
+      }
+    });
+  </script>
+</dom-module>

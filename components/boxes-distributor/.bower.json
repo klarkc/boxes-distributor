@@ -1,0 +1,39 @@
+{
+  "name": "boxes-distributor",
+  "authors": [
+    "Anonymous <anonymous@example.com>"
+  ],
+  "description": "An element providing a solution to no problem in particular.",
+  "keywords": [
+    "web-component",
+    "polymer",
+    "seed"
+  ],
+  "main": "boxes-distributor.html",
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "homepage": "https://github.com/<USERNAME>/seed-element/",
+  "ignore": [
+    "/.*",
+    "/test/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.2.0",
+    "iron-flex-layout": "PolymerElements/iron-flex-layout#^1.3.1",
+    "paper-input": "PolymerElements/paper-input#^1.1.11",
+    "paper-slider": "PolymerElements/paper-slider#^1.0.11"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "^4.0.0"
+  },
+  "_release": "cc42c98933",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "cc42c9893340250c1e9ceb6b4e4e033090e4db05"
+  },
+  "_source": "git@github.com:klarkc/boxes-distributor.git",
+  "_target": "master",
+  "_originalSource": "git@github.com:klarkc/boxes-distributor",
+  "_direct": true
+}

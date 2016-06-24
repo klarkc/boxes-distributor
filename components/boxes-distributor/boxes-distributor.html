@@ -1,0 +1,344 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-styles/default-theme.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-slider/paper-slider.html">
+<link rel="import" href="boxes-box.html">
+<link rel="import" href="packer-behavior.html">
+
+<!--
+This element distributes boxes with a ideal layout to use the maximum of available space in trucks
+
+Example:
+
+    <boxes-distributor
+                       truck-width='300'
+                       truck-height='192'
+                       box-width='54'
+                       box-height='42'
+                       >
+    </boxes-distributor>
+
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="boxes-distributor">
+  <template>
+    <style include="iron-flex iron-flex-alignment">
+      :host {
+        display: block;
+        box-sizing: border-box;
+        margin: 16px;
+      }
+
+      #container {
+        background-color: var(--dark-theme-background-color);
+        position: relative;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+
+
+    <paper-material id="container">
+      <template is="dom-repeat" items="[[boxes]]">
+        <boxes-box box="[[item]]" scale=[[scale]]></boxes-box>
+      </template>
+    </paper-material>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'boxes-distributor',
+
+      properties: {
+        /**
+         * `truckWidth` width of the truck in pixels
+         */
+        truckWidth: {
+          type: Number,
+          notify: true
+        },
+
+        /**
+         * `truckHeight` height of the truck in pixels
+         */
+        truckHeight: {
+          type: Number,
+          notify: true
+        },
+
+         /**
+         * `boxWidth` height of the truck in pixels
+         */
+        boxWidth: {
+          type: Number,
+          notify: true
+        },
+
+         /**
+         * `boxHeight` height of the truck in pixels
+         */
+        boxHeight: {
+          type: Number,
+          notify: true
+        },
+
+        /**
+         * `boxes` all the calculated boxes that possible fits in the area
+         */
+        boxes: {
+          type: Array,
+          readOnly: true,
+          notify: true
+        },
+
+        /**
+         * `scale` the scale multiplier of all the sizes
+         */
+        scale: {
+          type: Number,
+          value: 1,
+          notify: true
+        },
+
+        /**
+         * `efficiency` the in percentage efficiency of the calculated box
+         *  arrangement
+         */
+        efficiency: {
+          type: Number,
+          value: 0,
+          notify: true,
+          readOnly: true
+        },
+
+        /**
+         * `unfitted` the number of boxes that are not included in the arrangement
+         *  due to space limitations
+         */
+        unfitted: {
+          type: Number,
+          value: 0,
+          notify: true,
+          readOnly: true
+        },
+      },
+
+      observers: [
+        '_setTruck(truckWidth, truckHeight, scale)',
+        '_calculateBoxes(truckWidth, truckHeight, boxWidth, boxHeight)',
+        '_generateTree(truckWidth, truckHeight, boxes, scale)'
+      ],
+
+      listeners: {
+        'packed': '_handlePacked'
+      },
+
+      behaviors: [PackerBehavior],
+
+      // Element Behavior
+
+      /**
+       * Calculate the array of boxes
+       * @param {number} tW Width of the truck
+       * @param {number} tH Height of the truck
+       * @param {number} bW Width of the boxes
+       * @param {number} bH Height of the boxes
+       */
+      _calculateBoxes: function(tW, tH, bW, bH) {
+        if(!this._validateNumber(tW, tH, bW, bH)) return;
+        // console.log(tW, tH, bW, bH);
+        let tArea = tW * tH;
+        let bArea = bW * bH;
+        let nBoxes = Math.floor(tArea / bArea);
+        if(nBoxes < 1) return;
+
+        let boxes = new Array(nBoxes);
+        let bId = 0;
+        boxes = boxes.fill(null).map(function(){return {w: bW, h: bH, _id: ++bId}});
+
+        // Define the tries
+        this.tries = [];
+
+        // Finished status
+        this.finished = false;
+
+        this._setBoxes(boxes);
+      },
+
+      /**
+       * Calculates the arrangement efficiency
+       * @param   {Array} boxes Array of all boxes to calculate
+       * @returns {number} the calculated efficiency
+       */
+      _calculateEfficiency: function(boxes) {
+        let total = boxes.length;
+
+        let fit =  boxes.filter(function(box){
+          return box.fit;
+        }).length;
+
+        let eff = 100 * fit / total;
+        this._setEfficiency(eff);
+        this._setUnfitted(total - fit);
+        return eff;
+      },
+
+      /**
+       * Set the truck available space
+       * @param {number} tW Width of the space
+       * @param {[[Type]]} tH Height of the space
+       */
+      _setTruck: function(tW, tH) {
+        if(!this._validateNumber(tW, tH)) return;
+        this.$.container.style.width = tW * this.scale + 'px';
+        this.$.container.style.height = tH * this.scale + 'px';
+      },
+
+      /**
+       * Handles the packed boxes (after all calculations by the algorithm are made)
+       * @param {object} e The event dispatched
+       */
+      _handlePacked: function(e) {
+        if(this.finished) {
+          //console.log('already finished, skipping handlePacked');
+          return;
+        }
+
+
+        if(this.tries.length > 20) {
+          //console.log('max tries reached, finishing');
+          this._setBestTry();
+          return;
+        }
+
+        let eff = this._calculateEfficiency(e.detail);
+        if( eff >= 100) {
+          //console.log('max eficiency reached, finishing');
+          return;
+        } else if (this.tries.length > 0){
+          this.tries[this.tries.length - 1].efficiency = eff;
+        }
+
+        let missingBoxes = e.detail.filter(function(box){
+          return !box.fit;
+        });
+
+        let rotatedBoxes = missingBoxes.map(this._rotateBox);
+
+        let boxes = this._unFit(e.detail).map(function(box){
+          let rbox = rotatedBoxes.filter(function(rBox){
+            return rBox._id === box._id;
+          });
+          return rbox[0] || box;
+        }).sort(this._sort.maxside);
+
+        let lastTry = this.tries[this.tries.length - 1];
+        let rotatedIds = rotatedBoxes.map(function(b){return b._id});
+        if( lastTry && this._arrayEqual(lastTry.rotatedIds, rotatedIds)) {
+          //console.log('last try was the same, stoping the efficiency search');
+          this._setBestTry();
+          return;
+        }
+
+        this.tries.push({boxes: boxes, rotatedIds: rotatedIds});
+
+        //console.log('retrying with rotated', rotatedIds);
+        this._setBoxes(boxes);
+      },
+
+      /**
+       * Rotate a single box
+       * @param   {object} box The box (width w, h and _id properties)
+       * @returns {object} a new rotated box
+       */
+      _rotateBox: function(box) {
+        return {w: box.h, h: box.w, _id: box._id};
+      },
+
+      /**
+       * Removes fit object from boxes
+       * @param   {Array} boxes Array of boxes with the fit object
+       * @returns {Array} the same boxes without fit object
+       */
+      _unFit: function(boxes) {
+        return boxes.map(function(box){
+          delete box.fit;
+          return box;
+        });
+      },
+
+      /**
+       * Fired when the boxes-distributor did all the calculations and finish its work
+       *
+       * @event finished
+       */
+
+      /**
+       * Chooses the best arrangement calculation from tries array and
+       * dispatches the chosen one to the needed functions
+       */
+      _setBestTry: function() {
+        this.tries = this.tries.sort(function(a, b){
+          return b.efficiency - a.efficiency;
+        });
+        let bestTry = this._unFit(this.tries[0].boxes);
+        this.finished = true;
+        //console.log('tries ordered by efficiency', this.tries);
+        this._setBoxes(bestTry);
+        this._calculateEfficiency(bestTry);
+        this.fire('finished');
+      },
+
+      /**
+       * Compares two arrays by each value
+       * @param   {Array} a The first array
+       * @param   {Array} b The second array
+       * @returns {boolean}  true if they are equal
+       */
+      _arrayEqual: function(a, b) {
+        var i = a.length;
+        if (i != b.length) return false;
+        while (i--) {
+          if (a[i] !== b[i]) return false;
+        }
+        return true;
+      },
+
+      /**
+       * Validates numeric variables passed in arguments
+       * @returns {boolean} true if all variables has been validated
+       */
+      _validateNumber: function() {
+        for(let arg in arguments) {
+          if(typeof arguments[arg] !== 'number') {
+            console.trace('invalid value type', typeof arguments[arg]);
+            return false;
+          }
+          if(arguments[arg] < 1) {
+            console.trace('invalid value', arguments[arg]);
+            return false;
+          }
+          if(isNaN(arguments[arg])) {
+            console.trace('not a number', arguments[arg]);
+            return false;
+          }
+        }
+        return true;
+      }
+    });
+  </script>
+</dom-module>

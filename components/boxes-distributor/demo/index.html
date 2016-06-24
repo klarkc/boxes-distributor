@@ -1,0 +1,167 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>boxes-distributor Demo</title>
+    <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
+    <link rel="import" href="../../iron-flex-layout/iron-flex-layout-classes.html">
+    <link rel="import" href="../boxes-distributor.html">
+  </head>
+  <body unresolved>
+    <dom-module id="app-demo">
+      <template>
+        <style include="iron-flex iron-flex-alignment">
+          :host {
+            text-align: center;
+          }
+
+          .info {
+            max-width: 960px;
+            margin-left: auto;
+            margin-right: auto;
+          }
+
+          .info.top {
+
+          }
+
+          #efficiency {
+            color: red;
+          }
+
+          #slider {
+            width: 100%;
+          }
+        </style>
+        <h3>An example of a [[truckWidth]]x[[truckHeight]] with [[boxWidth]]x[[boxHeight]] boxes <code>&lt;boxes-distributor&gt</code> with zoom of [[_computeZoom(scale)]]%:</h3>
+
+        <paper-material class="info top layout vertical">
+        <div class="layout horizontal around-justified">
+          <paper-input
+                       type="number"
+                       label="Truck width"
+                       value={{truckWidth}}
+                       min=10
+                       pattern="\d+"
+                       >
+          </paper-input>
+          <paper-input
+                       type="number"
+                       label="Truck height"
+                       value={{truckHeight}}
+                       min=10
+                       pattern="\d+"
+                       >
+          </paper-input>
+        </div>
+        <div class="layout horizontal around-justified">
+          <paper-input
+                       type="number"
+                       label="Box width"
+                       value={{boxWidth}}
+                       min=10
+
+                       >
+          </paper-input>
+          <paper-input type="number"
+                       label="Box height"
+                       value={{boxHeight}}
+                       min=10
+                       pattern="\d+"
+                       >
+          </paper-input>
+        </div>
+        <paper-slider
+                      id="slider"
+                      label="Scale"
+                      min=1
+                      max=3
+                      step=0.1
+                      value={{scale}}
+                      pattern="\d+"
+                      >
+          </paper-slider>
+      </paper-material>
+
+        <boxes-distributor
+                           truck-width={{tW}}
+                           truck-height={{tH}}
+                           box-width={{bW}}
+                           box-height={{bH}}
+                           scale={{sc}}
+                           boxes={{boxes}}
+                           efficiency={{efficiency}}
+                           unfitted={{unfitted}}
+                           >
+        </boxes-distributor>
+
+        <paper-material class="info layout horizontal around-justified">
+          <p><span id="total">Number of boxes: {{_numberBoxes(boxes, unfitted)}}</span></p>
+          <p><span id="efficiency">{{_efficiency(efficiency)}}</span></p>
+        </paper-material>
+
+      </template>
+      <script>
+        Polymer({
+          is: 'app-demo',
+          properties: {
+            truckWidth: {
+              type: Number,
+              value: 300
+            },
+            truckHeight: {
+              type: Number,
+              value: 192
+            },
+            boxWidth: {
+              type: Number,
+              value: 54
+            },
+            boxHeight: {
+              type: Number,
+              value: 42
+            },
+            scale: {
+              type: Number,
+              value: 2
+            },
+          },
+          observers: [
+            '_validate(truckWidth, truckHeight, boxWidth, boxHeight, scale)'
+          ],
+          _numberBoxes: function(boxes, unfitted) {
+            return boxes.length - unfitted;
+          },
+          _efficiency: function(eff) {
+            this.$.efficiency.innerHTML = 'Layout efficiency: ' + eff + '%';
+            if(eff >= 50) this.$.efficiency.style.color = 'orange';
+            if(eff >= 80) this.$.efficiency.style.color = 'green';
+            return "Efficiency: " + Math.round(eff) + "%";
+          },
+          _validate(tW, tH, bW, bH, scale) {
+            this.tW = parseInt(tW);
+            this.tH = parseInt(tH);
+            this.bW = parseInt(bW);
+            this.bH = parseInt(bH);
+            this.sc = parseFloat(scale);
+          },
+          _computeZoom(scale) {
+            return Math.round(scale * 100);
+          }
+        });
+      </script>
+    </dom-module>
+
+    <app-demo></app-demo>
+  </body>
+</html>
