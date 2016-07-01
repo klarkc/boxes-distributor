@@ -4,12 +4,17 @@
   "authors": [
     "Walker Leite <walker@praiseweb.com.br>"
   ],
-  "description": "An element providing a solution to no problem in particular.",
+  "description": "This element try to organize boxes in a truck (or space) in the most efficient layout",
   "keywords": [
     "web-components",
     "web-component",
     "polymer",
-    "seed"
+    "seed",
+    "box",
+    "package bin",
+    "boxes",
+    "truck"
+    "layout"
   ],
   "main": "boxes-distributor.html",
   "license": "http://polymer.github.io/LICENSE.txt",
